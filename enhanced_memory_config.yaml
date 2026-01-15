@@ -1,0 +1,115 @@
+# enhanced_memory_config_updated.yaml
+# 众核架构完整配置文件 - 更新内存地址版本
+
+# 硬件配置
+hardware:
+  total_cores: 160                 # 总核心数
+  array_shape: [16, 10]            # 核心阵列形状 (行, 列)
+  
+  core_spec:
+    sram_size: 147456              # 每个核心的SRAM总大小 (144KB)
+    compute_capability:
+      mac_units: 32                # 每个核心的MAC单元数量
+      support_fma: true            # 是否支持FMA指令
+  
+  # 内存架构配置（字地址）
+  memory_arch:
+    mem0:
+      base_addr: 0x0000            # MEM0基地址（字地址）
+      size: 16384                  # MEM0大小 (64KB / 4 = 16K字)
+      description: "数据存储区域，存储输入和中间结果"
+    mem1:
+      base_addr: 0x4000            # MEM1基地址（字地址）
+      size: 16384                  # MEM1大小 (64KB / 4 = 16K字)
+      description: "权重和偏置存储区域"
+    mem2:
+      base_addr: 0x8000            # MEM2基地址（字地址）
+      size: 4096                   # MEM2大小 (16KB / 4 = 4K字)
+      description: "取指和结果输出区域"
+      partitions:
+        pi_b:
+          addr: 0x8000             # PI_B区域起始地址（字地址）
+          size: 768                # 3KB / 4 = 768字
+          description: "取指区域"
+        r_lab:
+          addr: 0x8300             # R_lab区域起始地址（字地址）
+          size: 256                # 1KB / 4 = 256字
+          description: "标签区域"
+        r_io:
+          addr: 0x8400             # R_IO区域起始地址（字地址）
+          size: 3072               # 12KB / 4 = 3072字
+          description: "结果输出区域"
+    mem3:
+      base_addr: 0x9000            # MEM3基地址（字地址）
+      size: 4                      # MEM3大小 (16B / 4 = 4字)
+      description: "核间传输数据缓存"
+
+  # 片上网络配置
+  noc:
+    latency_per_hop: 3             # 每跳延迟 (ns)
+    bandwidth: 12.5                # 带宽 (GB/s)
+    max_hops: 25                   # 最大跳数
+
+# 核心角色配置
+core_roles:
+  compute: [0, 1, 10, 11]          # 计算核心ID列表
+  input: -1                        # 输入核心 (-1表示无专用输入核心)
+  output: -1                       # 输出核心 (-1表示无专用输出核心)
+  cache: []                        # 缓存核心 (空列表表示无专用缓存核心)
+
+# 激活核心配置
+activation:
+  active_core_count: 4             # 激活核心数量
+  active_core_ids: [0, 1, 10, 11]  # 激活核心ID列表
+
+# 模型配置
+model:
+  onnx_path: "./onnx_model/lenet.onnx"  # ONNX模型文件路径
+  input_shape: [1, 1, 28, 28]       # 模型输入形状 (N, C, H, W)
+  input_dtype: "int8"               # 输入数据类型
+
+# LeNet模型特定内存分配示例
+lenet_memory_layout:
+  mem0:
+    fc2_output:                     # FC2输出 (84×1, int8)
+      addr_range: [0x6000, 0x7FFF]  # 字地址范围
+      size_words: 8192              # 大小（字）
+      description: "FC2输出存储"
+    fc3_output:                     # FC3输出 (10×1, int8)
+      addr_range: [0x2000, 0x23FF]  # 字地址范围
+      size_words: 1024              # 大小（字）
+      description: "FC3输出（最终结果）"
+  mem1:
+    conv1_weight:                   # Conv1权重
+      addr_range: [0x4000, 0x40C7]  # 字地址范围
+      size_words: 200               # 大小（字）
+    conv1_bias:                     # Conv1偏置
+      addr_range: [0x40C8, 0x40E7]  # 字地址范围
+      size_words: 32                # 大小（字）
+    conv2_weight:                   # Conv2权重
+      addr_range: [0x40E8, 0x4597]  # 字地址范围
+      size_words: 1200              # 大小（字）
+    conv2_bias:                     # Conv2偏置
+      addr_range: [0x4598, 0x45B7]  # 字地址范围
+      size_words: 32                # 大小（字）
+    fc1_weight:                     # FC1权重
+      addr_range: [0x45B8, 0x77B7]  # 字地址范围
+      size_words: 12560             # 大小（字）
+    fc1_bias:                       # FC1偏置
+      addr_range: [0x77B8, 0x7837]  # 字地址范围
+      size_words: 128               # 大小（字）
+    fc3_weight:                     # FC3权重
+      addr_range: [0x7838, 0x7AD7]  # 字地址范围
+      size_words: 672               # 大小（字）
+    fc3_bias:                       # FC3偏置
+      addr_range: [0x7AD8, 0x7FFF]  # 字地址范围
+      size_words: 1344              # 大小（字）
+
+# 分布式层映射
+layer_mapping:
+  # LeNet层映射示例
+  conv1: [0, 1]
+  conv2: [10, 11]
+  fc1: [0, 1, 10, 11]
+  fc2: [0, 1]
+  fc3: [0]
