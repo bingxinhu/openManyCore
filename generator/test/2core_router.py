@@ -1,0 +1,9 @@
+from primitive.Prim_41_Axon_CNN0_new import Prim_41_Axon
+from primitive.Prim_81_Axon_CNN1_new import Prim_81_Axon
+from primitive.Prim_06_move_merge_new import Prim_06_move_merge
+from primitive.Prim_06_move_split_new import Prim_06_move_split
+from primitive.Prim_09_Router import Prim_09_Router
+from primitive.Prim_X5_Soma_compare_new import Prim_X5_Soma
+from primitive.Prim_02_Axon_avgpooling_new import Prim_02_Axon
+import numpy as np
+

@@ -1,0 +1,433 @@
+{
+    "sim_clock": 100000,
+    "ChipArray": [
+        {
+            "ChipID": {
+                "cx": 0,
+                "cy": 0
+            },
+            "coreXMax": 7,
+            "coreYMax": 1,
+            "trigger": {
+                "start": [
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                "high": [
+                    99999,
+                    0,
+                    0,
+                    0
+                ],
+                "low": [
+                    1,
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "ChipConfig": [
+                {
+                    "PhaseGroup": 0,
+                    "Sim_clock": 200000,
+                    "trigger": 0,
+                    "P_adpt": 1
+                },
+                {
+                    "PhaseGroup": 1,
+                    "Sim_clock": 200000,
+                    "trigger": 0,
+                    "P_adpt": 1
+                },
+                {
+                    "PhaseGroup": 2,
+                    "Sim_clock": 200000,
+                    "trigger": 0,
+                    "P_adpt": 1
+                }
+            ],
+            "CoreConfig": [
+                {
+                    "CoreInfo": {
+                        "x": 1,
+                        "y": 0,
+                        "CoreGroup": 0,
+                        "static_PI_base_Addr": 0,
+                        "registers": {
+                            "Receive_PI_addr_base": 0,
+                            "PI_CXY": 0,
+                            "PI_Nx": 0,
+                            "PI_Ny": 0,
+                            "PI_sign_CXY": 0,
+                            "PI_sign_Nx": 0,
+                            "PI_sign_Ny": 0,
+                            "instant_PI_en": 0,
+                            "fixed_instant_PI": 0,
+                            "instant_PI_number": 0,
+                            "PI_loop_en": 0,
+                            "PI_loop_num": 0,
+                            "start_instant_PI_num": 0,
+                            "Addr_instant_PI_base": 0
+                        }
+                    },
+                    "PI": [
+                        {
+                            "A_valid": false,
+                            "S1_valid": true,
+                            "R_valid": true,
+                            "S2_valid": false,
+                            "PI_parameter": [
+                                {},
+                                {
+                                    "PIC": 6,
+                                    "PIC_Mode": 0,
+                                    "Reset_Addr_in": 1,
+                                    "Reset_Addr_out": 1,
+                                    "Reset_Addr_ciso": 1,
+                                    "Row_ck_on": 0,
+                                    "Addr_Start_in": 0,
+                                    "Addr_end_in": 767,
+                                    "Addr_Start_out": 8448,
+                                    "Addr_end_out": 9215,
+                                    "Addr_Start_ciso": 4096,
+                                    "Addr_end_ciso": 4107,
+                                    "in_row_max": 0,
+                                    "Km_num_in": 63,
+                                    "Km_num_ciso": 0,
+                                    "Km_num_out": 63,
+                                    "num_in": 11,
+                                    "num_ciso": 11,
+                                    "num_out": 11,
+                                    "type_in": 1,
+                                    "type_out": 1,
+                                    "in_cut_start": 0,
+                                    "mem_sel": 0,
+                                    "in_ciso_pipe_sel": 0
+                                },
+                                {
+                                    "PIC": 9,
+                                    "Rhead_mode": 1,
+                                    "CXY": 0,
+                                    "Send_en": 1,
+                                    "Receive_en": 0,
+                                    "Dout_Mem_sel": 1,
+                                    "Addr_Dout_base": 1024,
+                                    "Addr_Dout_length": 0,
+                                    "Addr_Rhead_base": 192,
+                                    "Addr_Rhead_length": 0,
+                                    "Addr_Din_base": 448,
+                                    "Addr_Din_length": 1,
+                                    "Send_number": 111,
+                                    "Receive_number": 0,
+                                    "Nx": 0,
+                                    "Ny": 0,
+                                    "Send_PI_en": 0,
+                                    "Back_Sign_en": 0,
+                                    "Send_PI_num": 0,
+                                    "Receive_sign_num": 0,
+                                    "Send_PI_addr_base": 0,
+                                    "Relay_number": 0,
+                                    "Q": 0,
+                                    "T_mode": 1,
+                                    "Receive_sign_en": 0,
+                                    "Soma_in_en": 1
+                                },
+                                {}
+                            ],
+                            "Additional": [
+                                {},
+                                {
+                                    "Read_in_length": 3072,
+                                    "Read_ciso_length": 48,
+                                    "Write_out_length": 3072
+                                },
+                                {},
+                                {}
+                            ],
+                            "Addr": [
+                                {},
+                                {
+                                    "Addr_Start_in": 0,
+                                    "Addr_end_in": 3068,
+                                    "Addr_Start_out": 33792,
+                                    "Addr_end_out": 36860,
+                                    "Addr_Start_ciso": 16384,
+                                    "Addr_end_ciso": 16428
+                                },
+                                {
+                                    "Addr_Dout_base": 36864,
+                                    "Addr_Dout_end": 36864,
+                                    "Addr_Rhead_base": 33536,
+                                    "Addr_Rhead_end": 33536,
+                                    "Addr_Din_base": 33664,
+                                    "Addr_Din_end": 33666
+                                },
+                                {}
+                            ],
+                            "Data": [
+                                {},
+                                {},
+                                {},
+                                {}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "CoreInfo": {
+                        "x": 2,
+                        "y": 0,
+                        "CoreGroup": 0,
+                        "static_PI_base_Addr": 0,
+                        "registers": {
+                            "Receive_PI_addr_base": 0,
+                            "PI_CXY": 0,
+                            "PI_Nx": 0,
+                            "PI_Ny": 0,
+                            "PI_sign_CXY": 0,
+                            "PI_sign_Nx": 0,
+                            "PI_sign_Ny": 0,
+                            "instant_PI_en": 0,
+                            "fixed_instant_PI": 0,
+                            "instant_PI_number": 0,
+                            "PI_loop_en": 0,
+                            "PI_loop_num": 0,
+                            "start_instant_PI_num": 0,
+                            "Addr_instant_PI_base": 0
+                        }
+                    },
+                    "PI": [
+                        {
+                            "A_valid": false,
+                            "S1_valid": true,
+                            "R_valid": true,
+                            "S2_valid": false,
+                            "PI_parameter": [
+                                {},
+                                {
+                                    "PIC": 6,
+                                    "PIC_Mode": 0,
+                                    "Reset_Addr_in": 1,
+                                    "Reset_Addr_out": 1,
+                                    "Reset_Addr_ciso": 1,
+                                    "Row_ck_on": 0,
+                                    "Addr_Start_in": 28672,
+                                    "Addr_end_in": 28727,
+                                    "Addr_Start_out": 37888,
+                                    "Addr_end_out": 37888,
+                                    "Addr_Start_ciso": 0,
+                                    "Addr_end_ciso": 27,
+                                    "in_row_max": 0,
+                                    "Km_num_in": 1,
+                                    "Km_num_ciso": 0,
+                                    "Km_num_out": 1,
+                                    "num_in": 27,
+                                    "num_ciso": 27,
+                                    "num_out": 27,
+                                    "type_in": 1,
+                                    "type_out": 1,
+                                    "in_cut_start": 0,
+                                    "mem_sel": 1,
+                                    "in_ciso_pipe_sel": 0
+                                },
+                                {
+                                    "PIC": 9,
+                                    "Rhead_mode": 1,
+                                    "CXY": 0,
+                                    "Send_en": 1,
+                                    "Receive_en": 0,
+                                    "Dout_Mem_sel": 1,
+                                    "Addr_Dout_base": 1024,
+                                    "Addr_Dout_length": 0,
+                                    "Addr_Rhead_base": 192,
+                                    "Addr_Rhead_length": 0,
+                                    "Addr_Din_base": 448,
+                                    "Addr_Din_length": 1,
+                                    "Send_number": 111,
+                                    "Receive_number": 0,
+                                    "Nx": 0,
+                                    "Ny": 0,
+                                    "Send_PI_en": 0,
+                                    "Back_Sign_en": 0,
+                                    "Send_PI_num": 0,
+                                    "Receive_sign_num": 0,
+                                    "Send_PI_addr_base": 0,
+                                    "Relay_number": 0,
+                                    "Q": 0,
+                                    "T_mode": 1,
+                                    "Receive_sign_en": 0,
+                                    "Soma_in_en": 1
+                                },
+                                {}
+                            ],
+                            "Additional": [
+                                {},
+                                {
+                                    "Read_in_length": 224,
+                                    "Read_ciso_length": 112,
+                                    "Write_out_length": 224
+                                },
+                                {},
+                                {}
+                            ],
+                            "Addr": [
+                                {},
+                                {
+                                    "Addr_Start_in": 28672,
+                                    "Addr_end_in": 28892,
+                                    "Addr_Start_out": 65536,
+                                    "Addr_end_out": 65756,
+                                    "Addr_Start_ciso": 0,
+                                    "Addr_end_ciso": 108
+                                },
+                                {
+                                    "Addr_Dout_base": 65536,
+                                    "Addr_Dout_end": 65536,
+                                    "Addr_Rhead_base": 62208,
+                                    "Addr_Rhead_end": 62208,
+                                    "Addr_Din_base": 62336,
+                                    "Addr_Din_end": 62338
+                                },
+                                {}
+                            ],
+                            "Data": [
+                                {},
+                                {},
+                                {},
+                                {}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "CoreInfo": {
+                        "x": 3,
+                        "y": 0,
+                        "CoreGroup": 0,
+                        "static_PI_base_Addr": 0,
+                        "registers": {
+                            "Receive_PI_addr_base": 0,
+                            "PI_CXY": 0,
+                            "PI_Nx": 0,
+                            "PI_Ny": 0,
+                            "PI_sign_CXY": 0,
+                            "PI_sign_Nx": 0,
+                            "PI_sign_Ny": 0,
+                            "instant_PI_en": 0,
+                            "fixed_instant_PI": 0,
+                            "instant_PI_number": 0,
+                            "PI_loop_en": 0,
+                            "PI_loop_num": 0,
+                            "start_instant_PI_num": 0,
+                            "Addr_instant_PI_base": 0
+                        }
+                    },
+                    "PI": [
+                        {
+                            "A_valid": false,
+                            "S1_valid": true,
+                            "R_valid": true,
+                            "S2_valid": false,
+                            "PI_parameter": [
+                                {},
+                                {
+                                    "PIC": 6,
+                                    "PIC_Mode": 0,
+                                    "Reset_Addr_in": 1,
+                                    "Reset_Addr_out": 1,
+                                    "Reset_Addr_ciso": 1,
+                                    "Row_ck_on": 0,
+                                    "Addr_Start_in": 36864,
+                                    "Addr_end_in": 36919,
+                                    "Addr_Start_out": 46080,
+                                    "Addr_end_out": 46080,
+                                    "Addr_Start_ciso": 0,
+                                    "Addr_end_ciso": 27,
+                                    "in_row_max": 0,
+                                    "Km_num_in": 1,
+                                    "Km_num_ciso": 0,
+                                    "Km_num_out": 1,
+                                    "num_in": 27,
+                                    "num_ciso": 27,
+                                    "num_out": 27,
+                                    "type_in": 1,
+                                    "type_out": 1,
+                                    "in_cut_start": 0,
+                                    "mem_sel": 1,
+                                    "in_ciso_pipe_sel": 0
+                                },
+                                {
+                                    "PIC": 9,
+                                    "Rhead_mode": 1,
+                                    "CXY": 0,
+                                    "Send_en": 1,
+                                    "Receive_en": 0,
+                                    "Dout_Mem_sel": 1,
+                                    "Addr_Dout_base": 1024,
+                                    "Addr_Dout_length": 0,
+                                    "Addr_Rhead_base": 192,
+                                    "Addr_Rhead_length": 0,
+                                    "Addr_Din_base": 448,
+                                    "Addr_Din_length": 1,
+                                    "Send_number": 111,
+                                    "Receive_number": 0,
+                                    "Nx": 0,
+                                    "Ny": 0,
+                                    "Send_PI_en": 0,
+                                    "Back_Sign_en": 0,
+                                    "Send_PI_num": 0,
+                                    "Receive_sign_num": 0,
+                                    "Send_PI_addr_base": 0,
+                                    "Relay_number": 0,
+                                    "Q": 0,
+                                    "T_mode": 1,
+                                    "Receive_sign_en": 0,
+                                    "Soma_in_en": 1
+                                },
+                                {}
+                            ],
+                            "Additional": [
+                                {},
+                                {
+                                    "Read_in_length": 224,
+                                    "Read_ciso_length": 112,
+                                    "Write_out_length": 224
+                                },
+                                {},
+                                {}
+                            ],
+                            "Addr": [
+                                {},
+                                {
+                                    "Addr_Start_in": 36864,
+                                    "Addr_end_in": 37084,
+                                    "Addr_Start_out": 73728,
+                                    "Addr_end_out": 73948,
+                                    "Addr_Start_ciso": 0,
+                                    "Addr_end_ciso": 108
+                                },
+                                {
+                                    "Addr_Dout_base": 73728,
+                                    "Addr_Dout_end": 73728,
+                                    "Addr_Rhead_base": 70400,
+                                    "Addr_Rhead_end": 70400,
+                                    "Addr_Din_base": 70528,
+                                    "Addr_Din_end": 70530
+                                },
+                                {}
+                            ],
+                            "Data": [
+                                {},
+                                {},
+                                {},
+                                {}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

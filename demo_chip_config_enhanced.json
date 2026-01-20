@@ -1,0 +1,12 @@
+{
+  "sim_clock": 100000,
+  "chip_array": [
+    1,
+    1
+  ],
+  "core_array": [
+    16,
+    10
+  ],
+  "phases": {
+    
