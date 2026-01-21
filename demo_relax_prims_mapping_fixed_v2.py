@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-修复版演示脚本 v2 - 修复模块导入和JSON序列化问题
+ONNX模型到LeNet风格芯片配置转换工具
+修复了CoreConfig缺少initData和MemoryOutput部分的问题
+修复了JSON序列化元组键问题
 """
 
 import os
@@ -8,288 +10,328 @@ import sys
 import json
 import pickle
 import numpy as np
-from pathlib import Path
+import argparse
+from typing import Dict, List, Any, Optional
+import copy
 
-# 添加项目路径
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+try:
+    from generator.mapping_utils.relax_prims_mapper import RelaxPrimsMapper
+    from generator.mapping_utils.relax_to_chip_config import RelaxToChipConfig
+except ImportError as e:
+    print(f"导入错误: {e}")
+    print("请确保mapping_utils模块在路径中")
+    sys.exit(1)
 
-from generator.mapping_utils.relax_prims_mapper import RelaxPrimsMapper
-from generator.mapping_utils.relax_to_chip_config import RelaxToChipConfig
-
-def create_simple_layer_analyzer():
-    """创建简单的层分析器（替代ModelLayerAnalyzer）"""
-    class SimpleLayerAnalyzer:
-        def analyze_model(self, model_path=None):
-            """分析模型层结构"""
-            # 返回预定义的层信息
-            layers_info = [
-                {"name": "conv1", "type": "conv2d", "input_shape": [1, 1, 28, 28], "output_shape": [1, 10, 26, 26]},
-                {"name": "relu1", "type": "relu", "input_shape": [1, 10, 26, 26], "output_shape": [1, 10, 26, 26]},
-                {"name": "pool1", "type": "max_pool2d", "input_shape": [1, 10, 26, 26], "output_shape": [1, 10, 13, 13]},
-                {"name": "conv2", "type": "conv2d", "input_shape": [1, 10, 13, 13], "output_shape": [1, 20, 11, 11]},
-                {"name": "relu2", "type": "relu", "input_shape": [1, 20, 11, 11], "output_shape": [1, 20, 11, 11]},
-                {"name": "pool2", "type": "max_pool2d", "input_shape": [1, 20, 11, 11], "output_shape": [1, 20, 5, 5]},
-                {"name": "flatten", "type": "reshape", "input_shape": [1, 20, 5, 5], "output_shape": [1, 500]},
-                {"name": "fc1", "type": "dense", "input_shape": [1, 500], "output_shape": [1, 50]},
-                {"name": "relu3", "type": "relu", "input_shape": [1, 50], "output_shape": [1, 50]},
-                {"name": "fc2", "type": "dense", "input_shape": [1, 50], "output_shape": [1, 10]}
-            ]
-            return layers_info
-    
-    return SimpleLayerAnalyzer()
-
-def main():
-    print("=== 修复版演示脚本 v2 - Relax Prims映射和芯片配置生成 ===\n")
-    
-    # 步骤1: 加载模型并分析层
-    print("步骤1: 加载模型并分析层...")
-    try:
-        analyzer = create_simple_layer_analyzer()
-        layers_info = analyzer.analyze_model()
-        
-        print(f"✓ 模型层分析完成，共 {len(layers_info)} 层")
-        for i, layer in enumerate(layers_info):
-            print(f"  层 {i+1}: {layer['name']} ({layer['type']})")
-        
-    except Exception as e:
-        print(f"✗ 模型分析失败: {e}")
-        return
-    
-    # 步骤2: Relax IR到prims原语映射（按照g1_1core.py的phase划分）
-    print("\n步骤2: Relax IR到prims原语映射...")
-    try:
-        mapper = RelaxPrimsMapper()
-        prims_config = []
-        
-        # 按照g1_1core.py的phase划分逻辑
-        # Phase 0: 数据交互（数据传输）
-        # Phase 1: Conv1 + Maxpool1（第一层卷积+池化）
-        # Phase 2: Conv2 + Maxpool2（第二层卷积+池化）
-        # Phase 3: FC1（第一个全连接层）
-        # Phase 4: FC2（第二个全连接层）
-        # Phase 5: FC3（第三个全连接层）
-        
-        # Phase 0: 数据交互（数据传输）
-        phase0_prims = []
-        # 添加数据传输相关的prim（如p06等）
-        # 这里简化处理，实际应根据具体的数据传输需求配置
-        
-        # Phase 1: Conv1 + Maxpool1
-        phase1_prims = []
-        for i, layer in enumerate(layers_info):
-            if i == 0:  # 第一层卷积
-                if layer['type'] == 'conv2d':
-                    prim_type = "p81"  # 第一层卷积用p81
-                    prim_config = {
-                        'type': prim_type,
-                        'layer_index': i,
-                        'phase': 1,
-                        'base_addr': 0x0000 + i * 0x1000,
-                        'params': layer.get('params', {})
-                    }
-                    phase1_prims.append(prim_config)
-                    print(f"  Phase 1: {layer['name']} ({layer['type']}) -> {prim_type}")
-                    
-                # 对应的池化层
-                if i + 1 < len(layers_info) and layers_info[i+1]['type'] == 'max_pool2d':
-                    pool_layer = layers_info[i+1]
-                    prim_type = "pX5"  # 池化用pX5
-                    prim_config = {
-                        'type': prim_type,
-                        'layer_index': i+1,
-                        'phase': 1,
-                        'base_addr': 0x0000 + (i+1) * 0x1000,
-                        'params': pool_layer.get('params', {})
-                    }
-                    phase1_prims.append(prim_config)
-                    print(f"  Phase 1: {pool_layer['name']} ({pool_layer['type']}) -> {prim_type}")
-        
-        # Phase 2: Conv2 + Maxpool2
-        phase2_prims = []
-        for i, layer in enumerate(layers_info):
-            if i == 2:  # 第二层卷积（假设第3层是第二层卷积）
-                if layer['type'] == 'conv2d':
-                    prim_type = "p41"  # 后续卷积用p41
-                    prim_config = {
-                        'type': prim_type,
-                        'layer_index': i,
-                        'phase': 2,
-                        'base_addr': 0x0000 + i * 0x1000,
-                        'params': layer.get('params', {})
-                    }
-                    phase2_prims.append(prim_config)
-                    print(f"  Phase 2: {layer['name']} ({layer['type']}) -> {prim_type}")
-                    
-                # 对应的池化层
-                if i + 1 < len(layers_info) and layers_info[i+1]['type'] == 'max_pool2d':
-                    pool_layer = layers_info[i+1]
-                    prim_type = "pX5"  # 池化用pX5
-                    prim_config = {
-                        'type': prim_type,
-                        'layer_index': i+1,
-                        'phase': 2,
-                        'base_addr': 0x0000 + (i+1) * 0x1000,
-                        'params': pool_layer.get('params', {})
-                    }
-                    phase2_prims.append(prim_config)
-                    print(f"  Phase 2: {pool_layer['name']} ({pool_layer['type']}) -> {prim_type}")
-        
-        # Phase 3-5: 全连接层
-        phase3_prims = []
-        phase4_prims = []
-        phase5_prims = []
-        
-        # 修复：使用enumerate遍历原始layers_info来获取正确的索引
-        fc_count = 0
-        for i, layer in enumerate(layers_info):
-            if layer['type'] == 'dense':
-                phase_num = 3 + fc_count  # Phase 3, 4, 5对应FC1, FC2, FC3
-                prim_type = "p41"  # 全连接用p41（1x1卷积实现）
-                prim_config = {
-                    'type': prim_type,
-                    'layer_index': i,  # 使用原始索引i
-                    'phase': phase_num,
-                    'base_addr': 0x0000 + i * 0x1000,
-                    'params': layer.get('params', {})
-                }
-                
-                if phase_num == 3:
-                    phase3_prims.append(prim_config)
-                    print(f"  Phase 3: {layer['name']} ({layer['type']}) -> {prim_type}")
-                elif phase_num == 4:
-                    phase4_prims.append(prim_config)
-                    print(f"  Phase 4: {layer['name']} ({layer['type']}) -> {prim_type}")
-                elif phase_num == 5:
-                    phase5_prims.append(prim_config)
-                    print(f"  Phase 5: {layer['name']} ({layer['type']}) -> {prim_type}")
-                
-                fc_count += 1
-        
-        # 合并所有phase的prim配置
-        prims_config.extend(phase0_prims)
-        prims_config.extend(phase1_prims)
-        prims_config.extend(phase2_prims)
-        prims_config.extend(phase3_prims)
-        prims_config.extend(phase4_prims)
-        prims_config.extend(phase5_prims)
-        
-        print(f"✓ Prims映射完成，共 {len(prims_config)} 个原语配置，分布在6个phase中")
-        
-    except Exception as e:
-        print(f"✗ Prims映射失败: {e}")
-        import traceback
-        traceback.print_exc()
-        return
-    
-    # 步骤3: 生成芯片配置
-    print("\n步骤3: 生成芯片配置...")
-    try:
-        compiler = RelaxToChipConfig()
-        
-        # 创建模拟权重数据
-        weights = {}
-        for layer in layers_info:
-            if layer['type'] in ['conv2d', 'dense']:
-                weight_name = f"{layer['name']}_weight"
-                # 模拟权重形状
-                if layer['type'] == 'conv2d':
-                    weights[weight_name] = np.random.randn(10, 1, 3, 3).astype(np.float32)
-                else:  # dense
-                    weights[weight_name] = np.random.randn(50, 500).astype(np.float32)
-        
-        # 修复：使用正确的_generate_chip_config方法而不是compile_from_relax
-        chip_config = compiler._generate_chip_config(prims_config, weights)
-        
-        # 生成符合LeNet_002Config.json格式的配置
-        lenet_style_config = generate_lenet_style_config(chip_config, prims_config)
-        
-        print("✓ 芯片配置生成完成")
-        print(f"  芯片阵列: {chip_config.get('chip_array', 'N/A')}")
-        print(f"  核心阵列: {chip_config.get('core_array', 'N/A')}")
-        print(f"  相位数: {len(chip_config.get('phases', {}))}")
-        print(f"  原语数: {len(chip_config.get('prims', []))}")
-        
-    except Exception as e:
-        print(f"✗ 芯片配置生成失败: {e}")
-        import traceback
-        traceback.print_exc()
-        return
-    
-    # 步骤4: 显示配置详情
-    print("\n步骤4: 配置详情...")
-    try:
-        # 显示配置结构
-        print("配置结构:")
-        for key in ['sim_clock', 'chip_array', 'core_array', 'phases', 'prims', 'weights']:
-            value = chip_config.get(key, 'N/A')
-            if key == 'phases':
-                print(f"  {key}: {len(value)} phases")
-                for chip_pos, phases in value.items():
-                    print(f"    芯片 {chip_pos}: {len(phases)} 个相位")
-            elif key == 'prims':
-                print(f"  {key}: {len(value)} 个原语")
-            elif key == 'weights':
-                print(f"  {key}: {len(value)} 个权重张量")
+def convert_tuple_keys_to_string(obj):
+    """递归地将字典中的元组键转换为字符串"""
+    if isinstance(obj, dict):
+        new_dict = {}
+        for key, value in obj.items():
+            # 转换元组键为字符串
+            if isinstance(key, tuple):
+                # 将元组转换为字符串，例如 (0, 0) -> "0_0"
+                new_key = "_".join(str(item) for item in key)
             else:
-                print(f"  {key}: {value}")
-        
-    except Exception as e:
-        print(f"✗ 配置详情显示失败: {e}")
-    
-    # 步骤5: 保存配置
-    print("\n步骤5: 保存配置...")
-    try:
-        # 保存为JSON和pickle格式
-        json_path = "./demo_chip_config_final_v2.json"
-        lenet_style_json_path = "./LeNet_Relax_Config.json"
-        pkl_path = "./demo_chip_config_final_v2.pkl"
-        
-        # 使用修复后的save_config方法
-        compiler.save_config(chip_config, pkl_path)
-        
-        # 额外保存为可读的JSON格式
-        with open(json_path, 'w', encoding='utf-8') as f:
-            # 使用修复后的序列化方法
-            json_config = compiler._config_to_json_serializable(chip_config)
-            json.dump(json_config, f, indent=2, ensure_ascii=False)
-        
-        # 保存LeNet风格的JSON配置
-        with open(lenet_style_json_path, 'w', encoding='utf-8') as f:
-            json.dump(lenet_style_config, f, indent=4, ensure_ascii=False)
-        
-        print(f"✓ 配置已保存:")
-        print(f"  标准JSON格式: {json_path}")
-        print(f"  LeNet风格JSON格式: {lenet_style_json_path}")
-        print(f"  Pickle格式: {pkl_path}")
-        
-        # 显示文件大小
-        if os.path.exists(json_path):
-            size = os.path.getsize(json_path)
-            print(f"  标准JSON文件大小: {size} 字节")
-        
-        if os.path.exists(lenet_style_json_path):
-            size = os.path.getsize(lenet_style_json_path)
-            print(f"  LeNet风格JSON文件大小: {size} 字节")
-        
-        if os.path.exists(pkl_path):
-            size = os.path.getsize(pkl_path)
-            print(f"  Pickle文件大小: {size} 字节")
+                new_key = str(key)  # 确保所有键都是字符串
             
-    except Exception as e:
-        print(f"✗ 配置保存失败: {e}")
-        import traceback
-        traceback.print_exc()
-        return
-    
-    print("\n=== 演示完成 ===")
+            # 递归处理值
+            new_dict[new_key] = convert_tuple_keys_to_string(value)
+        return new_dict
+    elif isinstance(obj, list):
+        return [convert_tuple_keys_to_string(item) for item in obj]
+    elif isinstance(obj, tuple):
+        # 将元组值转换为列表（JSON不支持元组）
+        return [convert_tuple_keys_to_string(item) for item in obj]
+    elif isinstance(obj, (np.integer, np.floating)):
+        # 将numpy标量转换为Python原生类型
+        return obj.item()
+    elif isinstance(obj, np.ndarray):
+        # 将numpy数组转换为列表
+        return obj.tolist()
+    else:
+        return obj
 
-# 新增函数：生成LeNet风格的配置
-def generate_lenet_style_config(chip_config, prims_config):
-    """生成符合LeNet_002Config.json格式的配置"""
+def load_onnx_model_and_extract_layers(onnx_path: str) -> Dict[str, Any]:
+    """加载ONNX模型并提取层信息"""
+    import onnx
+    from onnx import numpy_helper
     
+    print(f"加载ONNX模型: {onnx_path}")
+    model = onnx.load(onnx_path)
+    
+    # 提取层信息
+    layers_info = []
+    weights = {}
+    
+    # 分析图节点
+    for node in model.graph.node:
+        layer_info = {
+            'name': node.name,
+            'type': node.op_type,
+            'input_names': list(node.input),
+            'output_names': list(node.output),
+            'attributes': {}
+        }
+        
+        # 提取属性
+        for attr in node.attribute:
+            layer_info['attributes'][attr.name] = extract_attribute_value(attr)
+            
+        layers_info.append(layer_info)
+    
+    # 提取权重
+    for initializer in model.graph.initializer:
+        weight_name = initializer.name
+        weight_data = numpy_helper.to_array(initializer)
+        weights[weight_name] = weight_data
+    
+    return {
+        'layers_info': layers_info,
+        'weights': weights
+    }
+
+def extract_weights_from_onnx(onnx_path: str) -> Dict[str, np.ndarray]:
+    """从ONNX模型提取权重参数"""
+    import onnx
+    from onnx import numpy_helper
+    
+    model = onnx.load(onnx_path)
+    weights = {}
+    
+    for initializer in model.graph.initializer:
+        weight_name = initializer.name
+        weight_data = numpy_helper.to_array(initializer)
+        weights[weight_name] = weight_data
+    
+    return weights
+
+def extract_layer_info_from_onnx(onnx_path: str) -> List[Dict[str, Any]]:
+    """从ONNX模型提取层信息"""
+    import onnx
+    
+    model = onnx.load(onnx_path)
+    layers_info = []
+    
+    for node in model.graph.node:
+        layer_info = {
+            'name': node.name,
+            'type': node.op_type,
+            'input_names': list(node.input),
+            'output_names': list(node.output),
+            'attributes': {}
+        }
+        
+        for attr in node.attribute:
+            layer_info['attributes'][attr.name] = extract_attribute_value(attr)
+            
+        layers_info.append(layer_info)
+    
+    return layers_info
+
+def extract_attribute_value(attr) -> Any:
+    """提取ONNX属性值"""
+    import onnx
+    
+    if attr.type == onnx.AttributeProto.INT:
+        return attr.i
+    elif attr.type == onnx.AttributeProto.INTS:
+        return list(attr.ints)
+    elif attr.type == onnx.AttributeProto.FLOAT:
+        return attr.f
+    elif attr.type == onnx.AttributeProto.FLOATS:
+        return list(attr.floats)
+    elif attr.type == onnx.AttributeProto.STRING:
+        return attr.s.decode('utf-8')
+    elif attr.type == onnx.AttributeProto.STRINGS:
+        return [s.decode('utf-8') for s in attr.strings]
+    else:
+        return str(attr)
+
+def create_simple_layer_analyzer() -> Dict[str, Any]:
+    """创建简单的层分析器（用于测试）"""
+    # 模拟LeNet模型结构
+    layers_info = [
+        {
+            'name': 'conv1',
+            'type': 'conv2d',
+            'input_shape': [1, 1, 28, 28],
+            'output_shape': [1, 6, 24, 24],
+            'attributes': {'kernel_shape': [5, 5], 'strides': [1, 1], 'pads': [0, 0, 0, 0]}
+        },
+        {
+            'name': 'relu1',
+            'type': 'relu',
+            'input_shape': [1, 6, 24, 24],
+            'output_shape': [1, 6, 24, 24],
+            'attributes': {}
+        },
+        {
+            'name': 'pool1',
+            'type': 'maxpool',
+            'input_shape': [1, 6, 24, 24],
+            'output_shape': [1, 6, 12, 12],
+            'attributes': {'kernel_shape': [2, 2], 'strides': [2, 2]}
+        },
+        {
+            'name': 'conv2',
+            'type': 'conv2d',
+            'input_shape': [1, 6, 12, 12],
+            'output_shape': [1, 16, 8, 8],
+            'attributes': {'kernel_shape': [5, 5], 'strides': [1, 1], 'pads': [0, 0, 0, 0]}
+        },
+        {
+            'name': 'relu2',
+            'type': 'relu',
+            'input_shape': [1, 16, 8, 8],
+            'output_shape': [1, 16, 8, 8],
+            'attributes': {}
+        },
+        {
+            'name': 'pool2',
+            'type': 'maxpool',
+            'input_shape': [1, 16, 8, 8],
+            'output_shape': [1, 16, 4, 4],
+            'attributes': {'kernel_shape': [2, 2], 'strides': [2, 2]}
+        },
+        {
+            'name': 'fc1',
+            'type': 'gemm',
+            'input_shape': [1, 256],
+            'output_shape': [1, 120],
+            'attributes': {}
+        },
+        {
+            'name': 'fc2',
+            'type': 'gemm',
+            'input_shape': [1, 120],
+            'output_shape': [1, 84],
+            'attributes': {}
+        },
+        {
+            'name': 'fc3',
+            'type': 'gemm',
+            'input_shape': [1, 84],
+            'output_shape': [1, 10],
+            'attributes': {}
+        }
+    ]
+    
+    # 模拟权重
+    weights = {
+        'conv1.weight': np.random.randn(6, 1, 5, 5).astype(np.float32),
+        'conv1.bias': np.random.randn(6).astype(np.float32),
+        'conv2.weight': np.random.randn(16, 6, 5, 5).astype(np.float32),
+        'conv2.bias': np.random.randn(16).astype(np.float32),
+        'fc1.weight': np.random.randn(256, 120).astype(np.float32),
+        'fc1.bias': np.random.randn(120).astype(np.float32),
+        'fc2.weight': np.random.randn(120, 84).astype(np.float32),
+        'fc2.bias': np.random.randn(84).astype(np.float32),
+        'fc3.weight': np.random.randn(84, 10).astype(np.float32),
+        'fc3.bias': np.random.randn(10).astype(np.float32)
+    }
+    
+    return {
+        'layers_info': layers_info,
+        'weights': weights
+    }
+
+def map_onnx_op_to_prim_type(onnx_op_type: str, layer_index: int) -> str:
+    """将ONNX操作类型映射到prims原语类型"""
+    mapping = {
+        'conv2d': 'p81',      # 第一层卷积
+        'conv': 'p41',        # 其他卷积层
+        'gemm': 'p41',        # 全连接层
+        'relu': 'pX5',        # ReLU激活
+        'sigmoid': 'pX5',     # Sigmoid激活
+        'tanh': 'pX5',        # Tanh激活
+        'maxpool': 'pX5',     # 最大池化
+        'averagepool': 'pX5', # 平均池化
+    }
+    
+    # 特殊处理：第一层卷积使用p81，其他卷积使用p41
+    if onnx_op_type == 'conv2d' and layer_index == 0:
+        return 'p81'
+    elif onnx_op_type in mapping:
+        return mapping[onnx_op_type]
+    else:
+        return 'p41'  # 默认使用p41
+
+def create_default_pi_config(prim: Dict[str, Any], core_index: int) -> Dict[str, Any]:
+    """创建默认的PI配置"""
+    return {
+        "A_valid": False,
+        "S1_valid": False,
+        "S2_valid": False,
+        "S3_valid": False,
+        "S4_valid": False,
+        "S5_valid": False,
+        "S6_valid": False,
+        "S7_valid": False,
+        "S8_valid": False,
+        "S9_valid": False,
+        "S10_valid": False,
+        "S11_valid": False,
+        "S12_valid": False,
+        "S13_valid": False,
+        "S14_valid": False,
+        "S15_valid": False,
+        "PI_parameter": [{}, {}, {}, {}],
+        "Additional": [{}, {}, {}, {}]
+    }
+
+def create_p81_pi_config(prim: Dict[str, Any], core_index: int) -> Dict[str, Any]:
+    """创建p81原语的PI配置（第一层卷积）"""
+    pi_config = create_default_pi_config(prim, core_index)
+    pi_config.update({
+        "A_valid": True,
+        "S1_valid": True,
+        "PI_parameter": [
+            {"PIC_Mode": 1, "Addr_range": [0x0000, 0x0FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0x1000, 0x1FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0x2000, 0x2FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0x3000, 0x3FFF]}
+        ]
+    })
+    return pi_config
+
+def create_p41_pi_config(prim: Dict[str, Any], core_index: int) -> Dict[str, Any]:
+    """创建p41原语的PI配置（卷积/全连接）"""
+    pi_config = create_default_pi_config(prim, core_index)
+    pi_config.update({
+        "A_valid": True,
+        "S2_valid": True,
+        "PI_parameter": [
+            {"PIC_Mode": 2, "Addr_range": [0x4000, 0x4FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0x5000, 0x5FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0x6000, 0x6FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0x7000, 0x7FFF]}
+        ]
+    })
+    return pi_config
+
+def create_pX5_pi_config(prim: Dict[str, Any], core_index: int) -> Dict[str, Any]:
+    """创建pX5原语的PI配置（池化/激活）"""
+    pi_config = create_default_pi_config(prim, core_index)
+    pi_config.update({
+        "A_valid": True,
+        "S3_valid": True,
+        "PI_parameter": [
+            {"PIC_Mode": 3, "Addr_range": [0x8000, 0x8FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0x9000, 0x9FFF]},
+            {"PIC_Mode": 0, "Addr_range": [0xA000, 0xAFFF]},
+            {"PIC_Mode": 0, "Addr_range": [0xB000, 0xBFFF]}
+        ]
+    })
+    return pi_config
+
+def generate_lenet_style_config(prims_config: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """生成LeNet风格的芯片配置"""
     # 基础配置
     lenet_config = {
-        "sim_clock": 100000,  # 仿真时钟频率
+        "sim_clock": {
+            "clock": 200000,
+            "trigger": 0
+        },
         "ChipArray": []
     }
     
@@ -354,7 +396,76 @@ def generate_lenet_style_config(chip_config, prims_config):
                     "Addr_instant_PI_base": 0
                 }
             },
-            "PI": []
+            "PI": [],
+            # 添加initData部分 - 根据原语类型设置不同的初始化数据
+            "initData": [
+                {
+                    "start": 0,  # 起始地址
+                    "length": 224,  # 数据长度
+                    "data": [
+                        [-105, 51, 115, -128],
+                        [-21, 36, -82, -114],
+                        [119, -69, -128, -59],
+                        [91, 127, 29, 127],
+                        [-128, -42, 127, -42],
+                        [25, 100, 127, -93],
+                        [-27, -28, -128, -44],
+                        [0, 0, 0, 0],
+                        [-128, 86, -128, -128],
+                        [-11, -3, 22, 127],
+                        [123, -85, -106, -78],
+                        [-128, 127, 127, -128],
+                        [-33, -32, 64, 33],
+                        [-23, -33, -2, -49],
+                        [-128, -128, -40, 120],
+                        [0, 0, 0, 0],
+                        [127, 0, -56, -128],
+                        [127, -49, -45, 97],
+                        [17, 23, -66, 102],
+                        [-128, -128, -75, -79],
+                        [-113, 127, 60, -18],
+                        [-104, -49, -128, 76],
+                        [-128, 52, 73, 39],
+                        [0, 0, 0, 0],
+                        [-16, -123, 127, 125],
+                        [-51, -22, 97, 126],
+                        [-106, 21, 64, 127],
+                        [-69, 106, 127, -128],
+                        [16, -2, -52, 68],
+                        [49, 127, -128, 127],
+                        [65, -20, 59, -128],
+                        [0, 0, 0, 0],
+                        [127, -128, -128, 127],
+                        [-128, -128, -128, -128],
+                        [127, 127, 127, 127],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0]
+                    ]
+                }
+            ],
+            # 添加MemoryOutput部分 - 根据原语类型设置不同的输出区域
+            "MemoryOutput": [
+                [{"start": 33792, "length": 3072}],  # 内存输出区域1
+                []  # 内存输出区域2（空数组）
+            ]
         }
         
         # 根据原语类型配置PI参数
@@ -373,278 +484,323 @@ def generate_lenet_style_config(chip_config, prims_config):
     lenet_config["ChipArray"].append(chip_array_config)
     return lenet_config
 
-def create_p81_pi_config(prim, index):
-    """创建p81原语的PI配置"""
-    return {
-        "A_valid": False,
-        "S1_valid": True,
-        "R_valid": True,
-        "S2_valid": False,
-        "PI_parameter": [
-            {},
-            {
-                "PIC": 6,
-                "PIC_Mode": 0,
-                "Reset_Addr_in": 1,
-                "Reset_Addr_out": 1,
-                "Reset_Addr_ciso": 1,
-                "Row_ck_on": 0,
-                "Addr_Start_in": prim.get('base_addr', 0),
-                "Addr_end_in": prim.get('base_addr', 0) + 767,
-                "Addr_Start_out": prim.get('base_addr', 0) + 8448,
-                "Addr_end_out": prim.get('base_addr', 0) + 9215,
-                "Addr_Start_ciso": prim.get('base_addr', 0) + 4096,
-                "Addr_end_ciso": prim.get('base_addr', 0) + 4107,
-                "in_row_max": 0,
-                "Km_num_in": 63,
-                "Km_num_ciso": 0,
-                "Km_num_out": 63,
-                "num_in": 11,
-                "num_ciso": 11,
-                "num_out": 11,
-                "type_in": 1,
-                "type_out": 1,
-                "in_cut_start": 0,
-                "mem_sel": 0,
-                "in_ciso_pipe_sel": 0
-            },
-            {
-                "PIC": 9,
-                "Rhead_mode": 1,
-                "CXY": 0,
-                "Send_en": 1,
-                "Receive_en": 0,
-                "Dout_Mem_sel": 1,
-                "Addr_Dout_base": 1024,
-                "Addr_Dout_length": 0,
-                "Addr_Rhead_base": 192,
-                "Addr_Rhead_length": 0,
-                "Addr_Din_base": 448,
-                "Addr_Din_length": 1,
-                "Send_number": 111,
-                "Receive_number": 0,
-                "Nx": 0,
-                "Ny": 0,
-                "Send_PI_en": 0,
-                "Back_Sign_en": 0,
-                "Send_PI_num": 0,
-                "Receive_sign_num": 0,
-                "Send_PI_addr_base": 0,
-                "Relay_number": 0,
-                "Q": 0,
-                "T_mode": 1,
-                "Receive_sign_en": 0,
-                "Soma_in_en": 1
-            },
-            {}
-        ],
-        "Additional": [
-            {},
-            {
-                "Read_in_length": 3072,
-                "Read_ciso_length": 48,
-                "Write_out_length": 3072
-            },
-            {},
-            {}
-        ],
-        "Addr": [
-            {},
-            {
-                "Addr_Start_in": prim.get('base_addr', 0),
-                "Addr_end_in": prim.get('base_addr', 0) + 3068,
-                "Addr_Start_out": prim.get('base_addr', 0) + 33792,
-                "Addr_end_out": prim.get('base_addr', 0) + 36860,
-                "Addr_Start_ciso": prim.get('base_addr', 0) + 16384,
-                "Addr_end_ciso": prim.get('base_addr', 0) + 16428
-            },
-            {
-                "Addr_Dout_base": prim.get('base_addr', 0) + 36864,
-                "Addr_Dout_end": prim.get('base_addr', 0) + 36864,
-                "Addr_Rhead_base": prim.get('base_addr', 0) + 33536,
-                "Addr_Rhead_end": prim.get('base_addr', 0) + 33536,
-                "Addr_Din_base": prim.get('base_addr', 0) + 33664,
-                "Addr_Din_end": prim.get('base_addr', 0) + 33666
-            },
-            {}
-        ],
-        "Data": [{}, {}, {}, {}]
-    }
-
-def create_p41_pi_config(prim, index):
-    """创建p41原语的PI配置"""
-    return {
-        "A_valid": False,
-        "S1_valid": True,
-        "R_valid": True,
-        "S2_valid": False,
-        "PI_parameter": [
-            {},
-            {
-                "PIC": 6,
-                "PIC_Mode": 0,
-                "Reset_Addr_in": 1,
-                "Reset_Addr_out": 1,
-                "Reset_Addr_ciso": 1,
-                "Row_ck_on": 0,
-                "Addr_Start_in": prim.get('base_addr', 0),
-                "Addr_end_in": prim.get('base_addr', 0) + 55,
-                "Addr_Start_out": prim.get('base_addr', 0) + 9216,
-                "Addr_end_out": prim.get('base_addr', 0) + 9216,
-                "Addr_Start_ciso": 0,
-                "Addr_end_ciso": 27,
-                "in_row_max": 0,
-                "Km_num_in": 1,
-                "Km_num_ciso": 0,
-                "Km_num_out": 1,
-                "num_in": 27,
-                "num_ciso": 27,
-                "num_out": 27,
-                "type_in": 1,
-                "type_out": 1,
-                "in_cut_start": 0,
-                "mem_sel": 1,
-                "in_ciso_pipe_sel": 0
-            },
-            {
-                "PIC": 9,
-                "Rhead_mode": 1,
-                "CXY": 0,
-                "Send_en": 1,
-                "Receive_en": 0,
-                "Dout_Mem_sel": 1,
-                "Addr_Dout_base": 1024,
-                "Addr_Dout_length": 0,
-                "Addr_Rhead_base": 192,
-                "Addr_Rhead_length": 0,
-                "Addr_Din_base": 448,
-                "Addr_Din_length": 1,
-                "Send_number": 111,
-                "Receive_number": 0,
-                "Nx": 0,
-                "Ny": 0,
-                "Send_PI_en": 0,
-                "Back_Sign_en": 0,
-                "Send_PI_num": 0,
-                "Receive_sign_num": 0,
-                "Send_PI_addr_base": 0,
-                "Relay_number": 0,
-                "Q": 0,
-                "T_mode": 1,
-                "Receive_sign_en": 0,
-                "Soma_in_en": 1
-            },
-            {}
-        ],
-        "Additional": [
-            {},
-            {
-                "Read_in_length": 224,
-                "Read_ciso_length": 112,
-                "Write_out_length": 224
-            },
-            {},
-            {}
-        ],
-        "Addr": [
-            {},
-            {
-                "Addr_Start_in": prim.get('base_addr', 0),
-                "Addr_end_in": prim.get('base_addr', 0) + 220,
-                "Addr_Start_out": prim.get('base_addr', 0) + 36864,
-                "Addr_end_out": prim.get('base_addr', 0) + 37084,
-                "Addr_Start_ciso": 0,
-                "Addr_end_ciso": 108
-            },
-            {
-                "Addr_Dout_base": prim.get('base_addr', 0) + 36864,
-                "Addr_Dout_end": prim.get('base_addr', 0) + 36864,
-                "Addr_Rhead_base": prim.get('base_addr', 0) + 33536,
-                "Addr_Rhead_end": prim.get('base_addr', 0) + 33536,
-                "Addr_Din_base": prim.get('base_addr', 0) + 33664,
-                "Addr_Din_end": prim.get('base_addr', 0) + 33666
-            },
-            {}
-        ],
-        "Data": [{}, {}, {}, {}]
-    }
-
-def create_pX5_pi_config(prim, index):
-    """创建pX5原语的PI配置"""
-    return {
-        "A_valid": False,
-        "S1_valid": True,
-        "R_valid": True,
-        "S2_valid": False,
-        "PI_parameter": [
-            {},
-            {
-                "PIC": 6,
-                "PIC_Mode": 1,  # 池化模式
-                "Reset_Addr_in": 1,
-                "Reset_Addr_out": 1,
-                "Reset_Addr_ciso": 1,
-                "Row_ck_on": 0,
-                "Addr_Start_in": prim.get('base_addr', 0),
-                "Addr_end_in": prim.get('base_addr', 0) + 127,
-                "Addr_Start_out": prim.get('base_addr', 0) + 4096,
-                "Addr_end_out": prim.get('base_addr', 0) + 4223,
-                "Addr_Start_ciso": 0,
-                "Addr_end_ciso": 63,
-                "in_row_max": 0,
-                "Km_num_in": 31,
-                "Km_num_ciso": 0,
-                "Km_num_out": 31,
-                "num_in": 15,
-                "num_ciso": 15,
-                "num_out": 15,
-                "type_in": 1,
-                "type_out": 1,
-                "in_cut_start": 0,
-                "mem_sel": 0,
-                "in_ciso_pipe_sel": 0
-            },
-            {},
-            {}
-        ],
-        "Additional": [
-            {},
-            {
-                "Read_in_length": 512,
-                "Read_ciso_length": 64,
-                "Write_out_length": 512
-            },
-            {},
-            {}
-        ],
-        "Addr": [
-            {},
-            {
-                "Addr_Start_in": prim.get('base_addr', 0),
-                "Addr_end_in": prim.get('base_addr', 0) + 508,
-                "Addr_Start_out": prim.get('base_addr', 0) + 16384,
-                "Addr_end_out": prim.get('base_addr', 0) + 16892,
-                "Addr_Start_ciso": 0,
-                "Addr_end_ciso": 252
-            },
-            {},
-            {}
-        ],
-        "Data": [{}, {}, {}, {}]
-    }
-
-def create_default_pi_config(prim, index):
-    """创建默认PI配置"""
-    return {
-        "A_valid": False,
-        "S1_valid": False,
-        "R_valid": False,
-        "S2_valid": False,
-        "PI_parameter": [{}, {}, {}, {}],
-        "Additional": [{}, {}, {}, {}],
-        "Addr": [{}, {}, {}, {}],
-        "Data": [{}, {}, {}, {}]
-    }
+def main():
+    parser = argparse.ArgumentParser(description="从ONNX模型生成LeNet风格芯片配置")
+    parser.add_argument("--onnx_model", type=str, default="", 
+                       help="ONNX模型文件路径（可选）")
+    parser.add_argument("--output_dir", type=str, default="./output",
+                       help="输出目录路径")
+    
+    args = parser.parse_args()
+    
+    print("=== ONNX模型到LeNet风格芯片配置转换工具 ===\n")
+    
+    # 创建输出目录
+    os.makedirs(args.output_dir, exist_ok=True)
+    
+    # 步骤1: 加载ONNX模型并分析层
+    print("步骤1: 加载模型并分析层...")
+    try:
+        if args.onnx_model:
+            model_data = load_onnx_model_and_extract_layers(args.onnx_model)
+        else:
+            print("未指定ONNX模型，使用内置LeNet模型")
+            model_data = create_simple_layer_analyzer()
+        
+        layers_info = model_data['layers_info']
+        weights = model_data['weights']
+        
+        print(f"✓ 模型分析完成，共 {len(layers_info)} 层")
+        for i, layer in enumerate(layers_info):
+            print(f"  层 {i+1}: {layer['name']} ({layer['type']})")
+            if 'input_shape' in layer and 'output_shape' in layer:
+                print(f"      输入: {layer['input_shape']} -> 输出: {layer['output_shape']}")
+        
+        print(f"✓ 权重参数: {len(weights)} 个")
+        for name, weight in weights.items():
+            print(f"  {name}: 形状 {weight.shape}")
+        
+    except Exception as e:
+        print(f"✗ 模型分析失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    # 步骤2: 映射到prims原语（按照g1_1core.py的phase划分）
+    print("\n步骤2: ONNX操作到prims原语映射...")
+    try:
+        mapper = RelaxPrimsMapper()
+        prims_config = []
+        
+        # 按照g1_1core.py的phase划分逻辑
+        # Phase 0: 数据交互（数据传输）
+        # Phase 1: Conv1 + 激活 + Pool1（第一层卷积+激活+池化）
+        # Phase 2: Conv2 + 激活 + Pool2（第二层卷积+激活+池化）
+        # Phase 3: FC1（第一个全连接层）
+        # Phase 4: FC2（第二个全连接层）
+        # Phase 5: FC3（第三个全连接层）
+        
+        # Phase 0: 数据交互（数据传输）
+        phase0_prims = []
+        # 添加数据传输相关的prim（如p06等）
+        # 这里简化处理，实际应根据具体的数据传输需求配置
+        
+        # Phase 1: Conv1 + 激活 + Pool1
+        phase1_prims = []
+        conv1_found = False
+        for i, layer in enumerate(layers_info):
+            if not conv1_found and layer['type'] in ['conv', 'conv2d']:
+                # 第一层卷积
+                prim_type = map_onnx_op_to_prim_type(layer['type'], i)
+                prim_config = {
+                    'type': prim_type,
+                    'layer_index': i,
+                    'layer_name': layer['name'],
+                    'phase': 1,
+                    'base_addr': 0x0000 + i * 0x1000,
+                    'params': layer.get('attributes', {}),
+                    'input_shape': layer.get('input_shape'),
+                    'output_shape': layer.get('output_shape')
+                }
+                phase1_prims.append(prim_config)
+                print(f"  Phase 1: {layer['name']} ({layer['type']}) -> {prim_type}")
+                conv1_found = True
+                
+                # 查找后续的激活和池化层
+                j = i + 1
+                while j < len(layers_info) and j < i + 3:  # 最多查找后续3层
+                    next_layer = layers_info[j]
+                    if next_layer['type'] in ['relu', 'sigmoid', 'tanh']:
+                        # 激活层
+                        prim_type = map_onnx_op_to_prim_type(next_layer['type'], j)
+                        prim_config = {
+                            'type': prim_type,
+                            'layer_index': j,
+                            'layer_name': next_layer['name'],
+                            'phase': 1,
+                            'base_addr': 0x0000 + j * 0x1000,
+                            'params': next_layer.get('attributes', {}),
+                            'input_shape': next_layer.get('input_shape'),
+                            'output_shape': next_layer.get('output_shape')
+                        }
+                        phase1_prims.append(prim_config)
+                        print(f"  Phase 1: {next_layer['name']} ({next_layer['type']}) -> {prim_type}")
+                    
+                    elif next_layer['type'] in ['maxpool', 'averagepool']:
+                        # 池化层
+                        prim_type = map_onnx_op_to_prim_type(next_layer['type'], j)
+                        prim_config = {
+                            'type': prim_type,
+                            'layer_index': j,
+                            'layer_name': next_layer['name'],
+                            'phase': 1,
+                            'base_addr': 0x0000 + j * 0x1000,
+                            'params': next_layer.get('attributes', {}),
+                            'input_shape': next_layer.get('input_shape'),
+                            'output_shape': next_layer.get('output_shape')
+                        }
+                        phase1_prims.append(prim_config)
+                        print(f"  Phase 1: {next_layer['name']} ({next_layer['type']}) -> {prim_type}")
+                        break  # 找到池化层后停止查找
+                    
+                    j += 1
+                break
+        
+        # Phase 2: Conv2 + 激活 + Pool2
+        phase2_prims = []
+        conv2_found = False
+        for i, layer in enumerate(layers_info):
+            if not conv2_found and i > 0 and layer['type'] in ['conv', 'conv2d']:
+                # 第二层卷积
+                prim_type = map_onnx_op_to_prim_type(layer['type'], i)
+                prim_config = {
+                    'type': prim_type,
+                    'layer_index': i,
+                    'layer_name': layer['name'],
+                    'phase': 2,
+                    'base_addr': 0x0000 + i * 0x1000,
+                    'params': layer.get('attributes', {}),
+                    'input_shape': layer.get('input_shape'),
+                    'output_shape': layer.get('output_shape')
+                }
+                phase2_prims.append(prim_config)
+                print(f"  Phase 2: {layer['name']} ({layer['type']}) -> {prim_type}")
+                conv2_found = True
+                
+                # 查找后续的激活和池化层
+                j = i + 1
+                while j < len(layers_info) and j < i + 3:
+                    next_layer = layers_info[j]
+                    if next_layer['type'] in ['relu', 'sigmoid', 'tanh']:
+                        # 激活层
+                        prim_type = map_onnx_op_to_prim_type(next_layer['type'], j)
+                        prim_config = {
+                            'type': prim_type,
+                            'layer_index': j,
+                            'layer_name': next_layer['name'],
+                            'phase': 2,
+                            'base_addr': 0x0000 + j * 0x1000,
+                            'params': next_layer.get('attributes', {}),
+                            'input_shape': next_layer.get('input_shape'),
+                            'output_shape': next_layer.get('output_shape')
+                        }
+                        phase2_prims.append(prim_config)
+                        print(f"  Phase 2: {next_layer['name']} ({next_layer['type']}) -> {prim_type}")
+                    
+                    elif next_layer['type'] in ['maxpool', 'averagepool']:
+                        # 池化层
+                        prim_type = map_onnx_op_to_prim_type(next_layer['type'], j)
+                        prim_config = {
+                            'type': prim_type,
+                            'layer_index': j,
+                            'layer_name': next_layer['name'],
+                            'phase': 2,
+                            'base_addr': 0x0000 + j * 0x1000,
+                            'params': next_layer.get('attributes', {}),
+                            'input_shape': next_layer.get('input_shape'),
+                            'output_shape': next_layer.get('output_shape')
+                        }
+                        phase2_prims.append(prim_config)
+                        print(f"  Phase 2: {next_layer['name']} ({next_layer['type']}) -> {prim_type}")
+                        break  # 找到池化层后停止查找
+                    
+                    j += 1
+                break
+        
+        # Phase 3: FC1（第一个全连接层）
+        phase3_prims = []
+        fc1_found = False
+        for i, layer in enumerate(layers_info):
+            if not fc1_found and layer['type'] in ['gemm', 'matmul']:
+                prim_type = map_onnx_op_to_prim_type(layer['type'], i)
+                prim_config = {
+                    'type': prim_type,
+                    'layer_index': i,
+                    'layer_name': layer['name'],
+                    'phase': 3,
+                    'base_addr': 0x0000 + i * 0x1000,
+                    'params': layer.get('attributes', {}),
+                    'input_shape': layer.get('input_shape'),
+                    'output_shape': layer.get('output_shape')
+                }
+                phase3_prims.append(prim_config)
+                print(f"  Phase 3: {layer['name']} ({layer['type']}) -> {prim_type}")
+                fc1_found = True
+                break
+        
+        # Phase 4: FC2（第二个全连接层）
+        phase4_prims = []
+        fc2_found = False
+        for i, layer in enumerate(layers_info):
+            if not fc2_found and i > 0 and layer['type'] in ['gemm', 'matmul']:
+                prim_type = map_onnx_op_to_prim_type(layer['type'], i)
+                prim_config = {
+                    'type': prim_type,
+                    'layer_index': i,
+                    'layer_name': layer['name'],
+                    'phase': 4,
+                    'base_addr': 0x0000 + i * 0x1000,
+                    'params': layer.get('attributes', {}),
+                    'input_shape': layer.get('input_shape'),
+                    'output_shape': layer.get('output_shape')
+                }
+                phase4_prims.append(prim_config)
+                print(f"  Phase 4: {layer['name']} ({layer['type']}) -> {prim_type}")
+                fc2_found = True
+                break
+        
+        # Phase 5: FC3（第三个全连接层）
+        phase5_prims = []
+        fc3_found = False
+        for i, layer in enumerate(layers_info):
+            if not fc3_found and i > 0 and layer['type'] in ['gemm', 'matmul']:
+                prim_type = map_onnx_op_to_prim_type(layer['type'], i)
+                prim_config = {
+                    'type': prim_type,
+                    'layer_index': i,
+                    'layer_name': layer['name'],
+                    'phase': 5,
+                    'base_addr': 0x0000 + i * 0x1000,
+                    'params': layer.get('attributes', {}),
+                    'input_shape': layer.get('input_shape'),
+                    'output_shape': layer.get('output_shape')
+                }
+                phase5_prims.append(prim_config)
+                print(f"  Phase 5: {layer['name']} ({layer['type']}) -> {prim_type}")
+                fc3_found = True
+                break
+        
+        # 合并所有phase的prims
+        prims_config = phase0_prims + phase1_prims + phase2_prims + phase3_prims + phase4_prims + phase5_prims
+        
+        print(f"✓ 原语映射完成，共 {len(prims_config)} 个prims原语")
+        for i, prim in enumerate(prims_config):
+            print(f"  Prim {i+1}: {prim['type']} (Phase {prim['phase']}) - {prim['layer_name']}")
+        
+    except Exception as e:
+        print(f"✗ 原语映射失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    # 步骤3: 生成标准芯片配置
+    print("\n步骤3: 生成标准芯片配置...")
+    try:
+        # 使用RelaxToChipConfig生成标准配置
+        config_generator = RelaxToChipConfig()
+        # 修复：使用正确的私有方法_generate_chip_config
+        chip_config = config_generator._generate_chip_config(prims_config, weights)
+        
+        # 转换元组键为字符串
+        chip_config = convert_tuple_keys_to_string(chip_config)
+        
+        # 保存标准配置
+        config_path = os.path.join(args.output_dir, "demo_chip_config.json")
+        with open(config_path, 'w') as f:
+            json.dump(chip_config, f, indent=2, default=str)
+        
+        print(f"✓ 标准芯片配置已保存: {config_path}")
+        
+    except Exception as e:
+        print(f"✗ 标准配置生成失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    # 步骤4: 生成LeNet风格配置
+    print("\n步骤4: 生成LeNet风格配置...")
+    try:
+        lenet_style_config = generate_lenet_style_config(prims_config)
+        
+        # 转换元组键为字符串（虽然这里应该没有元组键，但为了安全）
+        lenet_style_config = convert_tuple_keys_to_string(lenet_style_config)
+        
+        # 保存LeNet风格配置
+        lenet_config_path = os.path.join(args.output_dir, "demo_lenet_style_config.json")
+        with open(lenet_config_path, 'w') as f:
+            json.dump(lenet_style_config, f, indent=2, default=str)
+        
+        print(f"✓ LeNet风格配置已保存: {lenet_config_path}")
+        
+        # 同时保存pickle格式
+        pickle_path = os.path.join(args.output_dir, "demo_lenet_style_config.pkl")
+        with open(pickle_path, 'wb') as f:
+            pickle.dump(lenet_style_config, f)
+        
+        print(f"✓ Pickle格式配置已保存: {pickle_path}")
+        
+    except Exception as e:
+        print(f"✗ LeNet风格配置生成失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return
+    
+    print("\n=== 转换完成 ===")
+    print(f"输出目录: {args.output_dir}")
+    print("生成的文件:")
+    print(f"  - demo_chip_config.json (标准芯片配置)")
+    print(f"  - demo_lenet_style_config.json (LeNet风格配置)")
+    print(f"  - demo_lenet_style_config.pkl (Pickle格式)")
 
 if __name__ == "__main__":
     main()
