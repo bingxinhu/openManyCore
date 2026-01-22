@@ -1,0 +1,316 @@
+{
+  "timestamp": "2026-01-22 09:30:32",
+  "model_info": {
+    "ir_version": 10,
+    "opset_import": [
+      "domain: \"\"\nversion: 20\n"
+    ],
+    "producer_name": "pytorch"
+  },
+  "hardware_config": {
+    "mem0_size": 65536,
+    "mem1_size": 65536,
+    "mem2_size": 16384,
+    "mem3_size": 16,
+    "core_grid": [
+      8,
+      1
+    ],
+    "core_mem_banks": 4,
+    "mac_units_per_core": 64,
+    "vector_width": 16,
+    "router_channels": 8,
+    "max_packet_size": 1024,
+    "total_cores": 8
+  },
+  "statistics": {
+    "model": {
+      "total_operators": 12,
+      "total_tensors": 15,
+      "total_parameters": 11,
+      "total_parameters_size": 246840,
+      "total_activations_size": 40808
+    },
+    "hardware": {
+      "total_cycles": 118958,
+      "total_macs": 118214,
+      "macs_per_cycle": 0.9937456917567545,
+      "peak_performance_gops": 0.000512,
+      "utilization": 0.0019409095542124112,
+      "estimated_latency_ms": 594.7900000000001
+    }
+  },
+  "memory_allocation": {
+    "mem_usage": {
+      "mem0": {
+        "total": 65536,
+        "used": 40816,
+        "free": 24720,
+        "usage_percent": 62.2802734375,
+        "base_address": "0x0000",
+        "next_free": "0x9F70"
+      },
+      "mem1": {
+        "total": 65536,
+        "used": 54912,
+        "free": 10624,
+        "usage_percent": 83.7890625,
+        "base_address": "0x4000",
+        "next_free": "0x11680"
+      },
+      "mem2": {
+        "total": 16384,
+        "used": 0,
+        "free": 16384,
+        "usage_percent": 0.0,
+        "base_address": "0x8000",
+        "next_free": "0x8000"
+      },
+      "mem3": {
+        "total": 16,
+        "used": 0,
+        "free": 16,
+        "usage_percent": 0.0,
+        "base_address": "0x9000",
+        "next_free": "0x9000"
+      }
+    },
+    "allocations": {
+      "conv1.weight": {
+        "mem_type": "mem1",
+        "addr": 16384,
+        "size": 608,
+        "byte_addr": 16384,
+        "word_addr": 4096,
+        "dtype": "float32",
+        "bank": 0,
+        "tensor_name": "conv1.weight",
+        "tensor_shape": [
+          6,
+          1,
+          5,
+          5
+        ],
+        "data_type": "weight"
+      },
+      "conv1.bias": {
+        "mem_type": "mem1",
+        "addr": 16992,
+        "size": 32,
+        "byte_addr": 16992,
+        "word_addr": 4248,
+        "dtype": "float32",
+        "bank": 1,
+        "tensor_name": "conv1.bias",
+        "tensor_shape": [
+          6
+        ],
+        "data_type": "bias"
+      },
+      "conv2.weight": {
+        "mem_type": "mem1",
+        "addr": 17024,
+        "size": 9600,
+        "byte_addr": 17024,
+        "word_addr": 4256,
+        "dtype": "float32",
+        "bank": 0,
+        "tensor_name": "conv2.weight",
+        "tensor_shape": [
+          16,
+          6,
+          5,
+          5
+        ],
+        "data_type": "weight"
+      },
+      "conv2.bias": {
+        "mem_type": "mem1",
+        "addr": 26624,
+        "size": 64,
+        "byte_addr": 26624,
+        "word_addr": 6656,
+        "dtype": "float32",
+        "bank": 1,
+        "tensor_name": "conv2.bias",
+        "tensor_shape": [
+          16
+        ],
+        "data_type": "bias"
+      },
+      "fc1.bias": {
+        "mem_type": "mem1",
+        "addr": 26688,
+        "size": 480,
+        "byte_addr": 26688,
+        "word_addr": 6672,
+        "dtype": "float32",
+        "bank": 0,
+        "tensor_name": "fc1.bias",
+        "tensor_shape": [
+          120
+        ],
+        "data_type": "bias"
+      },
+      "fc2.weight": {
+        "mem_type": "mem1",
+        "addr": 27168,
+        "size": 40320,
+        "byte_addr": 27168,
+        "word_addr": 6792,
+        "dtype": "float32",
+        "bank": 0,
+        "tensor_name": "fc2.weight",
+        "tensor_shape": [
+          84,
+          120
+        ],
+        "data_type": "weight"
+      },
+      "fc2.bias": {
+        "mem_type": "mem1",
+        "addr": 67488,
+        "size": 352,
+        "byte_addr": 67488,
+        "word_addr": 16872,
+        "dtype": "float32",
+        "bank": 2,
+        "tensor_name": "fc2.bias",
+        "tensor_shape": [
+          84
+        ],
+        "data_type": "bias"
+      },
+      "fc3.weight": {
+        "mem_type": "mem1",
+        "addr": 67840,
+        "size": 3360,
+        "byte_addr": 67840,
+        "word_addr": 16960,
+        "dtype": "float32",
+        "bank": 3,
+        "tensor_name": "fc3.weight",
+        "tensor_shape": [
+          10,
+          84
+        ],
+        "data_type": "weight"
+      },
+      "fc3.bias": {
+        "mem_type": "mem1",
+        "addr": 71200,
+        "size": 64,
+        "byte_addr": 71200,
+        "word_addr": 17800,
+        "dtype": "float32",
+        "bank": 0,
+        "tensor_name": "fc3.bias",
+        "tensor_shape": [
+          10
+        ],
+        "data_type": "bias"
+      },
+      "val_3": {
+        "mem_type": "mem1",
+        "addr": 71264,
+        "size": 32,
+        "byte_addr": 71264,
+        "word_addr": 17816,
+        "dtype": "int64",
+        "bank": 2,
+        "tensor_name": "val_3",
+        "tensor_shape": [
+          2
+        ],
+        "data_type": "bias"
+      },
+      "input": {
+        "mem_type": "mem0",
+        "addr": 0,
+        "size": 3136,
+        "byte_addr": 0,
+        "word_addr": 0,
+        "dtype": "float32",
+        "bank": 2,
+        "tensor_name": "input",
+        "tensor_shape": [
+          1,
+          1,
+          28,
+          28
+        ],
+        "data_type": "input"
+      },
+      "output": {
+        "mem_type": "mem0",
+        "addr": 3136,
+        "size": 48,
+        "byte_addr": 3136,
+        "word_addr": 784,
+        "dtype": "float32",
+        "bank": 3,
+        "tensor_name": "output",
+        "tensor_shape": [
+          1,
+          10
+        ],
+        "data_type": "output"
+      },
+      "conv2d": {
+        "mem_type": "mem0",
+        "addr": 3184,
+        "size": 18816,
+        "byte_addr": 3184,
+        "word_addr": 796,
+        "dtype": "float32",
+        "bank": 0,
+        "tensor_name": "conv2d",
+        "tensor_shape": [
+          1,
+          6,
+          28,
+          28
+        ],
+        "data_type": "intermediate"
+      },
+      "relu": {
+        "mem_type": "mem0",
+        "addr": 22000,
+        "size": 18816,
+        "byte_addr": 22000,
+        "word_addr": 5500,
+        "dtype": "float32",
+        "bank": 0,
+        "tensor_name": "relu",
+        "tensor_shape": [
+          1,
+          6,
+          28,
+          28
+        ],
+        "data_type": "intermediate"
+      }
+    },
+    "summary": {
+      "total_allocated": 95728,
+      "total_tensors": 14,
+      "type_stats": {
+        "weight": 53888,
+        "bias": 1024,
+        "input": 3136,
+        "output": 48,
+        "intermediate": 37632
+      }
+    }
+  },
+  "phase_summary": {
+    "total_phases": 12,
+    "total_cycles": 118958,
+    "estimated_latency_ms": 594.7899999999998
+  },
+  "config_summary": {
+    "g0_cores": 1,
+    "g1_cores": 1,
+    "g2_cores": 8
+  }
+}

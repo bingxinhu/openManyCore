@@ -1,0 +1,1412 @@
+{
+  "g0_config": {
+    "type": "g0",
+    "description": "FPGA\u6570\u636e\u8f93\u5165\u8f93\u51fa\u7ec4",
+    "chip": [
+      0,
+      0
+    ],
+    "cores": {
+      "1_0": {
+        "role": "fpga_io",
+        "primitives": []
+      }
+    },
+    "phases": [
+      {
+        "phase_id": 0,
+        "clock": 200000,
+        "mode": 1,
+        "cores": {
+          "1_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": null,
+                "soma2": {
+                  "addr_in": 0,
+                  "addr_out": 0,
+                  "addr_ciso": 0,
+                  "length_in": 1,
+                  "num_in": 1,
+                  "length_ciso": 0,
+                  "num_ciso": 0,
+                  "length_out": 1,
+                  "num_out": 1,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "data_in": null
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "g1_config": {
+    "type": "g1",
+    "description": "\u8ba1\u7b97\u6838\u5fc3\u7ec4 (1x1)",
+    "chip": [
+      0,
+      0
+    ],
+    "size_x": 1,
+    "size_y": 1,
+    "cores": {
+      "0_0": {
+        "role": "computation",
+        "operator_count": 12,
+        "primitives": [
+          {
+            "prim_type": "p81",
+            "params": {
+              "px": 28,
+              "py": 28,
+              "cin": 1,
+              "cout": 6,
+              "kx": 5,
+              "ky": 5,
+              "sx": 1,
+              "sy": 1,
+              "addr_ina": 0,
+              "addr_inb": 4096,
+              "addr_bias": 4248,
+              "addr_out": 796,
+              "pad_top": 2,
+              "pad_down": 2,
+              "pad_left": 2,
+              "pad_right": 2,
+              "dilations": [
+                1,
+                1
+              ],
+              "group": 1,
+              "ina_type": 1,
+              "inb_type": 1,
+              "load_bias": 1
+            },
+            "op_id": 0,
+            "op_type": "Conv",
+            "op_name": "node_conv2d"
+          },
+          {
+            "prim_type": "pX5",
+            "params": {
+              "mode": "relu",
+              "addr_in": 796,
+              "addr_out": 5500,
+              "cin": 6,
+              "cout": 6,
+              "px": 28,
+              "py": 28,
+              "kx": 1,
+              "ky": 1,
+              "sx": 1,
+              "sy": 1,
+              "cmp_c": 0,
+              "type_in": 1,
+              "type_out": 1,
+              "in_cut_start": 0,
+              "row_ck_on": 1,
+              "in_row_max": 1
+            },
+            "op_id": 1,
+            "op_type": "Relu",
+            "op_name": "node_relu"
+          },
+          {
+            "prim_type": "pX5",
+            "params": {
+              "mode": "avg",
+              "addr_in": 5500,
+              "addr_out": 0,
+              "cin": 6,
+              "cout": 1,
+              "px": 28,
+              "py": 28,
+              "kx": 2,
+              "ky": 2,
+              "sx": 2,
+              "sy": 2,
+              "cmp_c": 0,
+              "type_in": 1,
+              "type_out": 1,
+              "in_cut_start": 0,
+              "row_ck_on": 1,
+              "in_row_max": 2
+            },
+            "op_id": 2,
+            "op_type": "AveragePool",
+            "op_name": "node_avg_pool2d"
+          },
+          {
+            "prim_type": "p81",
+            "params": {
+              "px": 1,
+              "py": 1,
+              "cin": 1,
+              "cout": 16,
+              "kx": 5,
+              "ky": 5,
+              "sx": 1,
+              "sy": 1,
+              "addr_ina": 0,
+              "addr_inb": 4256,
+              "addr_bias": 6656,
+              "addr_out": 0,
+              "pad_top": 0,
+              "pad_down": 0,
+              "pad_left": 0,
+              "pad_right": 0,
+              "dilations": [
+                1,
+                1
+              ],
+              "group": 1,
+              "ina_type": 1,
+              "inb_type": 1,
+              "load_bias": 1
+            },
+            "op_id": 3,
+            "op_type": "Conv",
+            "op_name": "node_conv2d_1"
+          },
+          {
+            "prim_type": "pX5",
+            "params": {
+              "mode": "relu",
+              "addr_in": 0,
+              "addr_out": 0,
+              "cin": 1,
+              "cout": 1,
+              "px": 1,
+              "py": 1,
+              "kx": 1,
+              "ky": 1,
+              "sx": 1,
+              "sy": 1,
+              "cmp_c": 0,
+              "type_in": 1,
+              "type_out": 1,
+              "in_cut_start": 0,
+              "row_ck_on": 1,
+              "in_row_max": 1
+            },
+            "op_id": 4,
+            "op_type": "Relu",
+            "op_name": "node_relu_1"
+          },
+          {
+            "prim_type": "pX5",
+            "params": {
+              "mode": "avg",
+              "addr_in": 0,
+              "addr_out": 0,
+              "cin": 1,
+              "cout": 1,
+              "px": 1,
+              "py": 1,
+              "kx": 2,
+              "ky": 2,
+              "sx": 2,
+              "sy": 2,
+              "cmp_c": 0,
+              "type_in": 1,
+              "type_out": 1,
+              "in_cut_start": 0,
+              "row_ck_on": 1,
+              "in_row_max": 2
+            },
+            "op_id": 5,
+            "op_type": "AveragePool",
+            "op_name": "node_avg_pool2d_1"
+          },
+          {
+            "prim_type": "p06",
+            "params": {
+              "addr_in": 0,
+              "addr_out": 0,
+              "addr_ciso": 0,
+              "length_in": 1,
+              "num_in": 1,
+              "length_ciso": 0,
+              "num_ciso": 0,
+              "length_out": 1,
+              "num_out": 1,
+              "type_in": 1,
+              "type_out": 1,
+              "data_in": null
+            },
+            "op_id": 6,
+            "op_type": "Reshape",
+            "op_name": "node_view"
+          },
+          {
+            "prim_type": "p41",
+            "params": {
+              "px": 1,
+              "py": 1,
+              "cin": 1,
+              "cout": 120,
+              "kx": 1,
+              "ky": 1,
+              "sx": 1,
+              "sy": 1,
+              "addr_ina": 0,
+              "addr_inb": 0,
+              "addr_bias": 6672,
+              "addr_out": 0,
+              "pad_top": 0,
+              "pad_down": 0,
+              "pad_left": 0,
+              "pad_right": 0,
+              "ina_type": 1,
+              "inb_type": 1,
+              "load_bias": 1
+            },
+            "op_id": 7,
+            "op_type": "Gemm",
+            "op_name": "node_linear"
+          },
+          {
+            "prim_type": "pX5",
+            "params": {
+              "mode": "relu",
+              "addr_in": 0,
+              "addr_out": 0,
+              "cin": 1,
+              "cout": 1,
+              "px": 1,
+              "py": 1,
+              "kx": 1,
+              "ky": 1,
+              "sx": 1,
+              "sy": 1,
+              "cmp_c": 0,
+              "type_in": 1,
+              "type_out": 1,
+              "in_cut_start": 0,
+              "row_ck_on": 1,
+              "in_row_max": 1
+            },
+            "op_id": 8,
+            "op_type": "Relu",
+            "op_name": "node_relu_2"
+          },
+          {
+            "prim_type": "p41",
+            "params": {
+              "px": 1,
+              "py": 1,
+              "cin": 1,
+              "cout": 84,
+              "kx": 1,
+              "ky": 1,
+              "sx": 1,
+              "sy": 1,
+              "addr_ina": 0,
+              "addr_inb": 6792,
+              "addr_bias": 16872,
+              "addr_out": 0,
+              "pad_top": 0,
+              "pad_down": 0,
+              "pad_left": 0,
+              "pad_right": 0,
+              "ina_type": 1,
+              "inb_type": 1,
+              "load_bias": 1
+            },
+            "op_id": 9,
+            "op_type": "Gemm",
+            "op_name": "node_linear_1"
+          },
+          {
+            "prim_type": "pX5",
+            "params": {
+              "mode": "relu",
+              "addr_in": 0,
+              "addr_out": 0,
+              "cin": 1,
+              "cout": 1,
+              "px": 1,
+              "py": 1,
+              "kx": 1,
+              "ky": 1,
+              "sx": 1,
+              "sy": 1,
+              "cmp_c": 0,
+              "type_in": 1,
+              "type_out": 1,
+              "in_cut_start": 0,
+              "row_ck_on": 1,
+              "in_row_max": 1
+            },
+            "op_id": 10,
+            "op_type": "Relu",
+            "op_name": "node_relu_3"
+          },
+          {
+            "prim_type": "p41",
+            "params": {
+              "px": 1,
+              "py": 1,
+              "cin": 1,
+              "cout": 10,
+              "kx": 1,
+              "ky": 1,
+              "sx": 1,
+              "sy": 1,
+              "addr_ina": 0,
+              "addr_inb": 16960,
+              "addr_bias": 17800,
+              "addr_out": 784,
+              "pad_top": 0,
+              "pad_down": 0,
+              "pad_left": 0,
+              "pad_right": 0,
+              "ina_type": 1,
+              "inb_type": 1,
+              "load_bias": 1
+            },
+            "op_id": 11,
+            "op_type": "Gemm",
+            "op_name": "node_linear_2"
+          }
+        ]
+      }
+    },
+    "phases": [
+      {
+        "phase_id": 0,
+        "clock": 117600,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": {
+                  "px": 28,
+                  "py": 28,
+                  "cin": 1,
+                  "cout": 6,
+                  "kx": 5,
+                  "ky": 5,
+                  "sx": 1,
+                  "sy": 1,
+                  "addr_ina": 0,
+                  "addr_inb": 4096,
+                  "addr_bias": 4248,
+                  "addr_out": 796,
+                  "ina_type": 1,
+                  "inb_type": 1,
+                  "load_bias": 1
+                },
+                "soma1": null,
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 1,
+        "clock": 294,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": {
+                  "mode": "relu",
+                  "addr_in": 796,
+                  "addr_out": 5500,
+                  "cin": 6,
+                  "cout": 6,
+                  "px": 28,
+                  "py": 28,
+                  "kx": 1,
+                  "ky": 1,
+                  "sx": 1,
+                  "sy": 1,
+                  "cmp_c": 0,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "in_cut_start": 0,
+                  "row_ck_on": 1,
+                  "in_row_max": 1
+                },
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 2,
+        "clock": 294,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": {
+                  "mode": "avg",
+                  "addr_in": 5500,
+                  "addr_out": 0,
+                  "cin": 6,
+                  "cout": 1,
+                  "px": 28,
+                  "py": 28,
+                  "kx": 2,
+                  "ky": 2,
+                  "sx": 2,
+                  "sy": 2,
+                  "cmp_c": 0,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "in_cut_start": 0,
+                  "row_ck_on": 1,
+                  "in_row_max": 2
+                },
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 3,
+        "clock": 400,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": {
+                  "px": 1,
+                  "py": 1,
+                  "cin": 1,
+                  "cout": 16,
+                  "kx": 5,
+                  "ky": 5,
+                  "sx": 1,
+                  "sy": 1,
+                  "addr_ina": 0,
+                  "addr_inb": 4256,
+                  "addr_bias": 6656,
+                  "addr_out": 0,
+                  "ina_type": 1,
+                  "inb_type": 1,
+                  "load_bias": 1
+                },
+                "soma1": null,
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 4,
+        "clock": 10,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": {
+                  "mode": "relu",
+                  "addr_in": 0,
+                  "addr_out": 0,
+                  "cin": 1,
+                  "cout": 1,
+                  "px": 1,
+                  "py": 1,
+                  "kx": 1,
+                  "ky": 1,
+                  "sx": 1,
+                  "sy": 1,
+                  "cmp_c": 0,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "in_cut_start": 0,
+                  "row_ck_on": 1,
+                  "in_row_max": 1
+                },
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 5,
+        "clock": 10,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": {
+                  "mode": "avg",
+                  "addr_in": 0,
+                  "addr_out": 0,
+                  "cin": 1,
+                  "cout": 1,
+                  "px": 1,
+                  "py": 1,
+                  "kx": 2,
+                  "ky": 2,
+                  "sx": 2,
+                  "sy": 2,
+                  "cmp_c": 0,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "in_cut_start": 0,
+                  "row_ck_on": 1,
+                  "in_row_max": 2
+                },
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 6,
+        "clock": 10,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": null,
+                "soma2": {
+                  "addr_in": 0,
+                  "addr_out": 0,
+                  "addr_ciso": 0,
+                  "length_in": 1,
+                  "num_in": 1,
+                  "length_ciso": 0,
+                  "num_ciso": 0,
+                  "length_out": 1,
+                  "num_out": 1,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "data_in": null
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 7,
+        "clock": 120,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": {
+                  "px": 1,
+                  "py": 1,
+                  "cin": 1,
+                  "cout": 120,
+                  "kx": 1,
+                  "ky": 1,
+                  "sx": 1,
+                  "sy": 1,
+                  "addr_ina": 0,
+                  "addr_inb": 0,
+                  "addr_bias": 6672,
+                  "addr_out": 0,
+                  "pad_top": 0,
+                  "pad_down": 0,
+                  "pad_left": 0,
+                  "pad_right": 0,
+                  "ina_type": 1,
+                  "inb_type": 1,
+                  "load_bias": 1
+                },
+                "soma1": null,
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 8,
+        "clock": 10,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": {
+                  "mode": "relu",
+                  "addr_in": 0,
+                  "addr_out": 0,
+                  "cin": 1,
+                  "cout": 1,
+                  "px": 1,
+                  "py": 1,
+                  "kx": 1,
+                  "ky": 1,
+                  "sx": 1,
+                  "sy": 1,
+                  "cmp_c": 0,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "in_cut_start": 0,
+                  "row_ck_on": 1,
+                  "in_row_max": 1
+                },
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 9,
+        "clock": 100,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": {
+                  "px": 1,
+                  "py": 1,
+                  "cin": 1,
+                  "cout": 84,
+                  "kx": 1,
+                  "ky": 1,
+                  "sx": 1,
+                  "sy": 1,
+                  "addr_ina": 0,
+                  "addr_inb": 6792,
+                  "addr_bias": 16872,
+                  "addr_out": 0,
+                  "pad_top": 0,
+                  "pad_down": 0,
+                  "pad_left": 0,
+                  "pad_right": 0,
+                  "ina_type": 1,
+                  "inb_type": 1,
+                  "load_bias": 1
+                },
+                "soma1": null,
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 10,
+        "clock": 10,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": {
+                  "mode": "relu",
+                  "addr_in": 0,
+                  "addr_out": 0,
+                  "cin": 1,
+                  "cout": 1,
+                  "px": 1,
+                  "py": 1,
+                  "kx": 1,
+                  "ky": 1,
+                  "sx": 1,
+                  "sy": 1,
+                  "cmp_c": 0,
+                  "type_in": 1,
+                  "type_out": 1,
+                  "in_cut_start": 0,
+                  "row_ck_on": 1,
+                  "in_row_max": 1
+                },
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "phase_id": 11,
+        "clock": 100,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": {
+                  "px": 1,
+                  "py": 1,
+                  "cin": 1,
+                  "cout": 10,
+                  "kx": 1,
+                  "ky": 1,
+                  "sx": 1,
+                  "sy": 1,
+                  "addr_ina": 0,
+                  "addr_inb": 16960,
+                  "addr_bias": 17800,
+                  "addr_out": 784,
+                  "pad_top": 0,
+                  "pad_down": 0,
+                  "pad_left": 0,
+                  "pad_right": 0,
+                  "ina_type": 1,
+                  "inb_type": 1,
+                  "load_bias": 1
+                },
+                "soma1": null,
+                "router": null,
+                "soma2": null
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "g2_config": {
+    "type": "g2",
+    "description": "\u8def\u7531\u6838\u5fc3\u7ec4 (8x1)",
+    "chip": [
+      0,
+      0
+    ],
+    "size_x": 8,
+    "size_y": 1,
+    "cores": {
+      "0_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "east",
+            "core": [
+              1,
+              0
+            ]
+          }
+        ]
+      },
+      "1_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "west",
+            "core": [
+              0,
+              0
+            ]
+          },
+          {
+            "direction": "east",
+            "core": [
+              2,
+              0
+            ]
+          }
+        ]
+      },
+      "2_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "west",
+            "core": [
+              1,
+              0
+            ]
+          },
+          {
+            "direction": "east",
+            "core": [
+              3,
+              0
+            ]
+          }
+        ]
+      },
+      "3_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "west",
+            "core": [
+              2,
+              0
+            ]
+          },
+          {
+            "direction": "east",
+            "core": [
+              4,
+              0
+            ]
+          }
+        ]
+      },
+      "4_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "west",
+            "core": [
+              3,
+              0
+            ]
+          },
+          {
+            "direction": "east",
+            "core": [
+              5,
+              0
+            ]
+          }
+        ]
+      },
+      "5_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "west",
+            "core": [
+              4,
+              0
+            ]
+          },
+          {
+            "direction": "east",
+            "core": [
+              6,
+              0
+            ]
+          }
+        ]
+      },
+      "6_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "west",
+            "core": [
+              5,
+              0
+            ]
+          },
+          {
+            "direction": "east",
+            "core": [
+              7,
+              0
+            ]
+          }
+        ]
+      },
+      "7_0": {
+        "role": "routing",
+        "neighbors": [
+          {
+            "direction": "west",
+            "core": [
+              6,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    "phases": [
+      {
+        "phase_id": 0,
+        "clock": 100000,
+        "mode": 1,
+        "cores": {
+          "0_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 1,
+                      "Y": 0,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          },
+          "1_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 1,
+                      "Y": 0,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          },
+          "2_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 1,
+                      "Y": 0,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          },
+          "3_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 1,
+                      "Y": 0,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          },
+          "4_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 1,
+                      "Y": 0,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          },
+          "5_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 1,
+                      "Y": 0,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          },
+          "6_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 1,
+                      "Y": 0,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          },
+          "7_0": {
+            "prims": [
+              {
+                "axon": null,
+                "soma1": null,
+                "router": {
+                  "rhead_mode": 1,
+                  "send_en": true,
+                  "receive_en": true,
+                  "send_num": 15,
+                  "receive_num": 15,
+                  "addr_din_base": 896,
+                  "addr_din_length": 1,
+                  "addr_rhead_base": 0,
+                  "addr_rhead_length": 0,
+                  "addr_dout_base": 4096,
+                  "addr_dout_length": 0,
+                  "soma_in_en": 1,
+                  "rheads": [
+                    {
+                      "S": 0,
+                      "T": 1,
+                      "P": 0,
+                      "Q": 0,
+                      "X": 0,
+                      "Y": 1,
+                      "A": 0,
+                      "pack_per_Rhead": 15,
+                      "A_offset": 0,
+                      "Const": 0,
+                      "EN": 1
+                    }
+                  ]
+                },
+                "soma2": null
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "global_config": {
+    "sim_clock": 100000,
+    "step_clock": {
+      "0_0_0": [
+        99999,
+        100000
+      ]
+    },
+    "memory_map": {
+      "conv1.weight": {
+        "byte_addr": "0x4000",
+        "word_addr": "0x1000",
+        "mem_type": "mem1",
+        "size": 608
+      },
+      "conv1.bias": {
+        "byte_addr": "0x4260",
+        "word_addr": "0x1098",
+        "mem_type": "mem1",
+        "size": 32
+      },
+      "conv2.weight": {
+        "byte_addr": "0x4280",
+        "word_addr": "0x10A0",
+        "mem_type": "mem1",
+        "size": 9600
+      },
+      "conv2.bias": {
+        "byte_addr": "0x6800",
+        "word_addr": "0x1A00",
+        "mem_type": "mem1",
+        "size": 64
+      },
+      "fc1.bias": {
+        "byte_addr": "0x6840",
+        "word_addr": "0x1A10",
+        "mem_type": "mem1",
+        "size": 480
+      },
+      "fc2.weight": {
+        "byte_addr": "0x6A20",
+        "word_addr": "0x1A88",
+        "mem_type": "mem1",
+        "size": 40320
+      },
+      "fc2.bias": {
+        "byte_addr": "0x107A0",
+        "word_addr": "0x41E8",
+        "mem_type": "mem1",
+        "size": 352
+      },
+      "fc3.weight": {
+        "byte_addr": "0x10900",
+        "word_addr": "0x4240",
+        "mem_type": "mem1",
+        "size": 3360
+      },
+      "fc3.bias": {
+        "byte_addr": "0x11620",
+        "word_addr": "0x4588",
+        "mem_type": "mem1",
+        "size": 64
+      },
+      "val_3": {
+        "byte_addr": "0x11660",
+        "word_addr": "0x4598",
+        "mem_type": "mem1",
+        "size": 32
+      },
+      "input": {
+        "byte_addr": "0x0000",
+        "word_addr": "0x0000",
+        "mem_type": "mem0",
+        "size": 3136
+      },
+      "output": {
+        "byte_addr": "0x0C40",
+        "word_addr": "0x0310",
+        "mem_type": "mem0",
+        "size": 48
+      },
+      "conv2d": {
+        "byte_addr": "0x0C70",
+        "word_addr": "0x031C",
+        "mem_type": "mem0",
+        "size": 18816
+      },
+      "relu": {
+        "byte_addr": "0x55F0",
+        "word_addr": "0x157C",
+        "mem_type": "mem0",
+        "size": 18816
+      }
+    },
+    "memory_usage": {
+      "mem0": {
+        "total": 65536,
+        "used": 40816,
+        "free": 24720,
+        "usage_percent": 62.2802734375,
+        "base_address": "0x0000",
+        "next_free": "0x9F70"
+      },
+      "mem1": {
+        "total": 65536,
+        "used": 54912,
+        "free": 10624,
+        "usage_percent": 83.7890625,
+        "base_address": "0x4000",
+        "next_free": "0x11680"
+      },
+      "mem2": {
+        "total": 16384,
+        "used": 0,
+        "free": 16384,
+        "usage_percent": 0.0,
+        "base_address": "0x8000",
+        "next_free": "0x8000"
+      },
+      "mem3": {
+        "total": 16,
+        "used": 0,
+        "free": 16,
+        "usage_percent": 0.0,
+        "base_address": "0x9000",
+        "next_free": "0x9000"
+      }
+    },
+    "hardware_stats": {
+      "total_cycles": 118958,
+      "total_macs": 118214,
+      "macs_per_cycle": 0.9937456917567545,
+      "peak_performance_gops": 0.000512,
+      "utilization": 0.0019409095542124112,
+      "estimated_latency_ms": 594.7900000000001
+    },
+    "model_stats": {
+      "total_operators": 12,
+      "total_tensors": 15,
+      "total_parameters": 11,
+      "total_parameters_size": 246840,
+      "total_activations_size": 40808
+    },
+    "phase_summary": {
+      "total_phases": 12,
+      "total_cycles": 118958,
+      "estimated_latency_ms": 594.7899999999998
+    }
+  }
+}

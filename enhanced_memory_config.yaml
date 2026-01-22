@@ -64,7 +64,7 @@ activation:
 
 # 模型配置
 model:
-  onnx_path: "./onnx_model/lenet.onnx"  # ONNX模型文件路径
+  onnx_path: "./onnx_model/lenet_simple.onnx"  # ONNX模型文件路径
   input_shape: [1, 1, 28, 28]       # 模型输入形状 (N, C, H, W)
   input_dtype: "int8"               # 输入数据类型
 

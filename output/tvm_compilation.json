@@ -1,0 +1,6 @@
+{
+  "module": null,
+  "operators": [],
+  "target": "llvm -keys=cpu -mtriple=x86_64-conda-linux-gnu",
+  "error": "'str' object has no attribute 'ir_version'"
+}

@@ -1,0 +1,629 @@
+{
+  "sim_clock": 100000,
+  "ChipArray": [
+    {
+      "ChipID": {
+        "cx": 0,
+        "cy": 0
+      },
+      "coreXMax": 7,
+      "coreYMax": 1,
+      "trigger": {
+        "start": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "high": [
+          99999,
+          0,
+          0,
+          0
+        ],
+        "low": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "ChipConfig": [
+        {
+          "PhaseGroup": 0,
+          "Sim_clock": 200000,
+          "trigger": 0,
+          "P_adpt": 1
+        },
+        {
+          "PhaseGroup": 1,
+          "Sim_clock": 200000,
+          "trigger": 0,
+          "P_adpt": 1
+        },
+        {
+          "PhaseGroup": 2,
+          "Sim_clock": 200000,
+          "trigger": 0,
+          "P_adpt": 1
+        }
+      ],
+      "CoreConfig": [
+        {
+          "CoreInfo": {
+            "x": 1,
+            "y": 1,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": false,
+              "R_valid": false,
+              "S2_valid": true,
+              "PI_parameter": [
+                {},
+                {},
+                {},
+                {
+                  "PIC": 6
+                }
+              ],
+              "Additional": [
+                {},
+                {},
+                {},
+                {
+                  "Read_in_length": 3072
+                }
+              ],
+              "Addr": [
+                {},
+                {},
+                {},
+                {
+                  "Addr_Start_in": 0
+                }
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 2,
+            "y": 1,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": false,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 5
+                },
+                {},
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 256
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {},
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 3,
+            "y": 1,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": false,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 5
+                },
+                {},
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 256
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {},
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 1,
+            "y": 2,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": true,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 6
+                },
+                {
+                  "PIC": 9
+                },
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 224
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {
+                  "Addr_Dout_base": 36864
+                },
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 2,
+            "y": 2,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": false,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 5
+                },
+                {},
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 256
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {},
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 3,
+            "y": 2,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": false,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 5
+                },
+                {},
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 256
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {},
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 1,
+            "y": 3,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": true,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 6
+                },
+                {
+                  "PIC": 9
+                },
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 224
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {
+                  "Addr_Dout_base": 36864
+                },
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 1,
+            "y": 4,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": true,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 6
+                },
+                {
+                  "PIC": 9
+                },
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 224
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {
+                  "Addr_Dout_base": 36864
+                },
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        },
+        {
+          "CoreInfo": {
+            "x": 1,
+            "y": 5,
+            "CoreGroup": 0,
+            "static_PI_base_Addr": 0,
+            "registers": {
+              "Receive_PI_addr_base": 0,
+              "PI_CXY": 0,
+              "PI_Nx": 0,
+              "PI_Ny": 0,
+              "PI_sign_CXY": 0,
+              "PI_sign_Nx": 0,
+              "PI_sign_Ny": 0,
+              "instant_PI_en": 0,
+              "fixed_instant_PI": 0,
+              "instant_PI_number": 0,
+              "PI_loop_en": 0,
+              "PI_loop_num": 0,
+              "start_instant_PI_num": 0,
+              "Addr_instant_PI_base": 0
+            }
+          },
+          "PI": [
+            {
+              "A_valid": false,
+              "S1_valid": true,
+              "R_valid": true,
+              "S2_valid": false,
+              "PI_parameter": [
+                {},
+                {
+                  "PIC": 6
+                },
+                {
+                  "PIC": 9
+                },
+                {}
+              ],
+              "Additional": [
+                {},
+                {
+                  "Read_in_length": 224
+                },
+                {},
+                {}
+              ],
+              "Addr": [
+                {},
+                {
+                  "Addr_Start_in": 0
+                },
+                {
+                  "Addr_Dout_base": 36864
+                },
+                {}
+              ],
+              "Data": [
+                {},
+                {},
+                {},
+                {}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+自动化映射分析报告
+=====================
+
+生成时间: 2026-01-22 09:30:32
+
+1. 模型信息
+-----------
+算子数量: 12
+参数大小: 241.1 KB
+激活大小: 39.9 KB
+
+2. 硬件性能
+-----------
+总时钟周期: 118,958
+总MAC操作: 118,214
+MAC/周期: 0.99
+硬件利用率: 0.2%
+估计延迟: 594.8 ms
+
+3. 内存使用
+-----------
+mem0: 40,816 / 65,536 B (62.3%)
+mem1: 54,912 / 65,536 B (83.8%)
+mem2: 0 / 16,384 B (0.0%)
+mem3: 0 / 16 B (0.0%)
+
+4. 核心分配
+-----------
+Group0 (FPGA): 1 核心
+Group1 (计算): 1 核心  
+Group2 (路由): 8 核心
+
+5. 硬件配置
+-----------
+mem0_size: 65536
+mem1_size: 65536
+mem2_size: 16384
+mem3_size: 16
+core_mem_banks: 4
+mac_units_per_core: 64
+vector_width: 16
+router_channels: 8
+max_packet_size: 1024
+total_cores: 8
+
+6. 建议
+-------
+- ℹ️ 内存使用率适中，有优化空间
+- ⚠️ 硬件利用率较低，建议进行算子融合或流水线优化
+
+7. 生成的文件
+-------------
+- model_analysis.json: 模型分析结果
+- mapped_model.json: 硬件映射结果  
+- all_configs.json: 所有硬件配置
+- g0_config.py: Group0配置代码
+- g1_config.py: Group1配置代码
+- g2_config.py: Group2配置代码
+- test_main.py: 主测试程序
+- data_loader.py: 数据加载器
+- analysis_report.json: 详细分析报告
+- analysis_report.html: HTML格式报告
+- analysis_report.txt: 文本格式报告
+
+报告生成完成!
